@@ -8,6 +8,7 @@ ESPHome configurations for a Wiegand keypad + RFID reader that controls a door l
 
 - **30 code slots** with NVS persistence (codes survive reboots)
 - **30 RFID tag slots** with NVS persistence and Wiegand 26-bit card reads
+- **Code learn mode** -- flip a switch in HA, type a code on the keypad, and it auto-registers in the next empty slot
 - **Tag learn mode** -- flip a switch in HA, scan a tag, and it auto-registers in the next empty slot
 - **5-attempt lockout** with 60-second cooldown (shared across codes and tags)
 - **Configurable relay pulse** duration (1-30s, default 5s)
@@ -124,7 +125,14 @@ secrets.yaml.example   # Template for secrets.yaml
 
 5. **Add to Home Assistant** -- The device will appear in HA under **Settings > Devices & Services > ESPHome**. You'll see a Lock entity, diagnostic sensors, and configurable numbers for relay pulse and relock time.
 
-6. **Set codes** via the HA Developer Tools > Services:
+6. **Set codes** -- Two options:
+
+   **Option A: Learn mode (easiest)**
+   - In HA, toggle the **Code Learn Mode** switch ON.
+   - Type a code on the keypad (min 4 digits) and press `#` within 30 seconds.
+   - The code is saved in the next available slot. The switch turns itself OFF.
+
+   **Option B: API action**
    ```yaml
    action: esphome.keypad_lock_set_code
    data:

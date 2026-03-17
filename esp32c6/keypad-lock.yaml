@@ -693,6 +693,10 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'false'
+  - id: learn_mode_code_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
 
 wiegand:
   - id: my_keypad
@@ -823,6 +827,49 @@ key_collector:
     timeout: 10s
     on_result:
       - lambda: |-
+          std::string entered = x;
+
+          // Code learn mode: register in next available slot
+          if (id(learn_mode_code_active)) {
+            id(learn_mode_code_active) = false;
+            id(code_learn_mode).publish_state(false);
+
+            if (entered.length() < 4) {
+              ESP_LOGW("keypad", "Code too short (min 4 digits), not learned");
+              return;
+            }
+
+            std::string *code_slots[] = {
+              &id(code_slot_1),  &id(code_slot_2),  &id(code_slot_3),
+              &id(code_slot_4),  &id(code_slot_5),  &id(code_slot_6),
+              &id(code_slot_7),  &id(code_slot_8),  &id(code_slot_9),
+              &id(code_slot_10), &id(code_slot_11), &id(code_slot_12),
+              &id(code_slot_13), &id(code_slot_14), &id(code_slot_15),
+              &id(code_slot_16), &id(code_slot_17), &id(code_slot_18),
+              &id(code_slot_19), &id(code_slot_20), &id(code_slot_21),
+              &id(code_slot_22), &id(code_slot_23), &id(code_slot_24),
+              &id(code_slot_25), &id(code_slot_26), &id(code_slot_27),
+              &id(code_slot_28), &id(code_slot_29), &id(code_slot_30)
+            };
+
+            for (int i = 0; i < 30; i++) {
+              if (!code_slots[i]->empty() && *code_slots[i] == entered) {
+                ESP_LOGW("keypad", "Code already registered in slot %d", i + 1);
+                return;
+              }
+            }
+
+            for (int i = 0; i < 30; i++) {
+              if (code_slots[i]->empty()) {
+                *code_slots[i] = entered;
+                ESP_LOGI("keypad", "Code learned in slot %d", i + 1);
+                return;
+              }
+            }
+            ESP_LOGW("keypad", "All code slots full, cannot learn code");
+            return;
+          }
+
           const int MAX_FAILED = 5;
           const uint32_t LOCKOUT_MS = 60000;
 
@@ -838,7 +885,6 @@ key_collector:
             id(failed_attempts) = 0;
           }
 
-          std::string entered = x;
           const std::string* slots[] = {
             &id(code_slot_1),  &id(code_slot_2),  &id(code_slot_3),
             &id(code_slot_4),  &id(code_slot_5),  &id(code_slot_6),
@@ -935,6 +981,29 @@ switch:
       - lambda: |-
           id(learn_mode_active) = false;
           ESP_LOGI("keypad", "Tag learn mode OFF");
+
+  - platform: template
+    name: "Code Learn Mode"
+    id: code_learn_mode
+    icon: mdi:dialpad
+    optimistic: true
+    on_turn_on:
+      - lambda: |-
+          id(learn_mode_code_active) = true;
+          ESP_LOGI("keypad", "Code learn mode ON - enter a code on the keypad to register it");
+      - delay: 30s
+      - if:
+          condition:
+            lambda: 'return id(learn_mode_code_active);'
+          then:
+            - lambda: |-
+                id(learn_mode_code_active) = false;
+                ESP_LOGW("keypad", "Code learn mode timed out");
+            - switch.turn_off: code_learn_mode
+    on_turn_off:
+      - lambda: |-
+          id(learn_mode_code_active) = false;
+          ESP_LOGI("keypad", "Code learn mode OFF");
 
 lock:
   - platform: template
