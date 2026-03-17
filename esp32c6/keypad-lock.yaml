@@ -171,36 +171,194 @@ api:
       then:
         - api.respond:
             data: !lambda |-
-              root["slot_1"]  = id(code_slot_1);
-              root["slot_2"]  = id(code_slot_2);
-              root["slot_3"]  = id(code_slot_3);
-              root["slot_4"]  = id(code_slot_4);
-              root["slot_5"]  = id(code_slot_5);
-              root["slot_6"]  = id(code_slot_6);
-              root["slot_7"]  = id(code_slot_7);
-              root["slot_8"]  = id(code_slot_8);
-              root["slot_9"]  = id(code_slot_9);
-              root["slot_10"] = id(code_slot_10);
-              root["slot_11"] = id(code_slot_11);
-              root["slot_12"] = id(code_slot_12);
-              root["slot_13"] = id(code_slot_13);
-              root["slot_14"] = id(code_slot_14);
-              root["slot_15"] = id(code_slot_15);
-              root["slot_16"] = id(code_slot_16);
-              root["slot_17"] = id(code_slot_17);
-              root["slot_18"] = id(code_slot_18);
-              root["slot_19"] = id(code_slot_19);
-              root["slot_20"] = id(code_slot_20);
-              root["slot_21"] = id(code_slot_21);
-              root["slot_22"] = id(code_slot_22);
-              root["slot_23"] = id(code_slot_23);
-              root["slot_24"] = id(code_slot_24);
-              root["slot_25"] = id(code_slot_25);
-              root["slot_26"] = id(code_slot_26);
-              root["slot_27"] = id(code_slot_27);
-              root["slot_28"] = id(code_slot_28);
-              root["slot_29"] = id(code_slot_29);
-              root["slot_30"] = id(code_slot_30);
+              root["slot_1"]  = id(code_slot_1);  root["slot_2"]  = id(code_slot_2);
+              root["slot_3"]  = id(code_slot_3);  root["slot_4"]  = id(code_slot_4);
+              root["slot_5"]  = id(code_slot_5);  root["slot_6"]  = id(code_slot_6);
+              root["slot_7"]  = id(code_slot_7);  root["slot_8"]  = id(code_slot_8);
+              root["slot_9"]  = id(code_slot_9);  root["slot_10"] = id(code_slot_10);
+              root["slot_11"] = id(code_slot_11); root["slot_12"] = id(code_slot_12);
+              root["slot_13"] = id(code_slot_13); root["slot_14"] = id(code_slot_14);
+              root["slot_15"] = id(code_slot_15); root["slot_16"] = id(code_slot_16);
+              root["slot_17"] = id(code_slot_17); root["slot_18"] = id(code_slot_18);
+              root["slot_19"] = id(code_slot_19); root["slot_20"] = id(code_slot_20);
+              root["slot_21"] = id(code_slot_21); root["slot_22"] = id(code_slot_22);
+              root["slot_23"] = id(code_slot_23); root["slot_24"] = id(code_slot_24);
+              root["slot_25"] = id(code_slot_25); root["slot_26"] = id(code_slot_26);
+              root["slot_27"] = id(code_slot_27); root["slot_28"] = id(code_slot_28);
+              root["slot_29"] = id(code_slot_29); root["slot_30"] = id(code_slot_30);
+
+    - action: set_tag
+      supports_response: optional
+      variables:
+        slot: int
+        tag: string
+      then:
+        - if:
+            condition:
+              lambda: 'return slot >= 1 && slot <= 30 && tag.length() > 0;'
+            then:
+              - if:
+                  condition:
+                    lambda: |-
+                      const std::string* slots[] = {
+                        &id(tag_slot_1),  &id(tag_slot_2),  &id(tag_slot_3),
+                        &id(tag_slot_4),  &id(tag_slot_5),  &id(tag_slot_6),
+                        &id(tag_slot_7),  &id(tag_slot_8),  &id(tag_slot_9),
+                        &id(tag_slot_10), &id(tag_slot_11), &id(tag_slot_12),
+                        &id(tag_slot_13), &id(tag_slot_14), &id(tag_slot_15),
+                        &id(tag_slot_16), &id(tag_slot_17), &id(tag_slot_18),
+                        &id(tag_slot_19), &id(tag_slot_20), &id(tag_slot_21),
+                        &id(tag_slot_22), &id(tag_slot_23), &id(tag_slot_24),
+                        &id(tag_slot_25), &id(tag_slot_26), &id(tag_slot_27),
+                        &id(tag_slot_28), &id(tag_slot_29), &id(tag_slot_30)
+                      };
+                      for (int i = 0; i < 30; i++) {
+                        if (i != (slot - 1) && !slots[i]->empty() && *slots[i] == tag) {
+                          return false;
+                        }
+                      }
+                      return true;
+                  then:
+                    - lambda: |-
+                        std::string *target = nullptr;
+                        switch (slot) {
+                          case 1:  target = &id(tag_slot_1);  break;
+                          case 2:  target = &id(tag_slot_2);  break;
+                          case 3:  target = &id(tag_slot_3);  break;
+                          case 4:  target = &id(tag_slot_4);  break;
+                          case 5:  target = &id(tag_slot_5);  break;
+                          case 6:  target = &id(tag_slot_6);  break;
+                          case 7:  target = &id(tag_slot_7);  break;
+                          case 8:  target = &id(tag_slot_8);  break;
+                          case 9:  target = &id(tag_slot_9);  break;
+                          case 10: target = &id(tag_slot_10); break;
+                          case 11: target = &id(tag_slot_11); break;
+                          case 12: target = &id(tag_slot_12); break;
+                          case 13: target = &id(tag_slot_13); break;
+                          case 14: target = &id(tag_slot_14); break;
+                          case 15: target = &id(tag_slot_15); break;
+                          case 16: target = &id(tag_slot_16); break;
+                          case 17: target = &id(tag_slot_17); break;
+                          case 18: target = &id(tag_slot_18); break;
+                          case 19: target = &id(tag_slot_19); break;
+                          case 20: target = &id(tag_slot_20); break;
+                          case 21: target = &id(tag_slot_21); break;
+                          case 22: target = &id(tag_slot_22); break;
+                          case 23: target = &id(tag_slot_23); break;
+                          case 24: target = &id(tag_slot_24); break;
+                          case 25: target = &id(tag_slot_25); break;
+                          case 26: target = &id(tag_slot_26); break;
+                          case 27: target = &id(tag_slot_27); break;
+                          case 28: target = &id(tag_slot_28); break;
+                          case 29: target = &id(tag_slot_29); break;
+                          case 30: target = &id(tag_slot_30); break;
+                        }
+                        if (target) {
+                          *target = tag;
+                          ESP_LOGI("keypad", "Tag set in slot %d: %s", slot, tag.c_str());
+                        }
+                    - homeassistant.event:
+                        event: esphome.keypad_tag_set
+                        data:
+                          slot: !lambda 'return to_string(slot);'
+                          success: "true"
+                    - api.respond:
+                        data: !lambda |-
+                          root["slot"] = slot;
+                          root["success"] = true;
+                          root["tag"] = tag;
+                          root["message"] = "Tag set in slot " + to_string(slot);
+                  else:
+                    - api.respond:
+                        success: false
+                        error_message: "Tag already registered in another slot"
+            else:
+              - api.respond:
+                  success: false
+                  error_message: "Invalid slot (1-30) or empty tag"
+
+    - action: clear_tag
+      supports_response: optional
+      variables:
+        slot: int
+      then:
+        - if:
+            condition:
+              lambda: 'return slot >= 1 && slot <= 30;'
+            then:
+              - lambda: |-
+                  std::string *target = nullptr;
+                  switch (slot) {
+                    case 1:  target = &id(tag_slot_1);  break;
+                    case 2:  target = &id(tag_slot_2);  break;
+                    case 3:  target = &id(tag_slot_3);  break;
+                    case 4:  target = &id(tag_slot_4);  break;
+                    case 5:  target = &id(tag_slot_5);  break;
+                    case 6:  target = &id(tag_slot_6);  break;
+                    case 7:  target = &id(tag_slot_7);  break;
+                    case 8:  target = &id(tag_slot_8);  break;
+                    case 9:  target = &id(tag_slot_9);  break;
+                    case 10: target = &id(tag_slot_10); break;
+                    case 11: target = &id(tag_slot_11); break;
+                    case 12: target = &id(tag_slot_12); break;
+                    case 13: target = &id(tag_slot_13); break;
+                    case 14: target = &id(tag_slot_14); break;
+                    case 15: target = &id(tag_slot_15); break;
+                    case 16: target = &id(tag_slot_16); break;
+                    case 17: target = &id(tag_slot_17); break;
+                    case 18: target = &id(tag_slot_18); break;
+                    case 19: target = &id(tag_slot_19); break;
+                    case 20: target = &id(tag_slot_20); break;
+                    case 21: target = &id(tag_slot_21); break;
+                    case 22: target = &id(tag_slot_22); break;
+                    case 23: target = &id(tag_slot_23); break;
+                    case 24: target = &id(tag_slot_24); break;
+                    case 25: target = &id(tag_slot_25); break;
+                    case 26: target = &id(tag_slot_26); break;
+                    case 27: target = &id(tag_slot_27); break;
+                    case 28: target = &id(tag_slot_28); break;
+                    case 29: target = &id(tag_slot_29); break;
+                    case 30: target = &id(tag_slot_30); break;
+                  }
+                  if (target) {
+                    *target = "";
+                    ESP_LOGI("keypad", "Tag slot %d cleared", slot);
+                  }
+              - homeassistant.event:
+                  event: esphome.keypad_tag_cleared
+                  data:
+                    slot: !lambda 'return to_string(slot);'
+                    success: "true"
+              - api.respond:
+                  data: !lambda |-
+                    root["slot"] = slot;
+                    root["success"] = true;
+                    root["message"] = "Tag slot " + to_string(slot) + " cleared";
+            else:
+              - api.respond:
+                  success: false
+                  error_message: "Invalid slot (must be 1-30)"
+
+    - action: get_tags
+      supports_response: only
+      then:
+        - api.respond:
+            data: !lambda |-
+              root["slot_1"]  = id(tag_slot_1);  root["slot_2"]  = id(tag_slot_2);
+              root["slot_3"]  = id(tag_slot_3);  root["slot_4"]  = id(tag_slot_4);
+              root["slot_5"]  = id(tag_slot_5);  root["slot_6"]  = id(tag_slot_6);
+              root["slot_7"]  = id(tag_slot_7);  root["slot_8"]  = id(tag_slot_8);
+              root["slot_9"]  = id(tag_slot_9);  root["slot_10"] = id(tag_slot_10);
+              root["slot_11"] = id(tag_slot_11); root["slot_12"] = id(tag_slot_12);
+              root["slot_13"] = id(tag_slot_13); root["slot_14"] = id(tag_slot_14);
+              root["slot_15"] = id(tag_slot_15); root["slot_16"] = id(tag_slot_16);
+              root["slot_17"] = id(tag_slot_17); root["slot_18"] = id(tag_slot_18);
+              root["slot_19"] = id(tag_slot_19); root["slot_20"] = id(tag_slot_20);
+              root["slot_21"] = id(tag_slot_21); root["slot_22"] = id(tag_slot_22);
+              root["slot_23"] = id(tag_slot_23); root["slot_24"] = id(tag_slot_24);
+              root["slot_25"] = id(tag_slot_25); root["slot_26"] = id(tag_slot_26);
+              root["slot_27"] = id(tag_slot_27); root["slot_28"] = id(tag_slot_28);
+              root["slot_29"] = id(tag_slot_29); root["slot_30"] = id(tag_slot_30);
 
     - action: set_relay_pulse_time
       supports_response: optional
@@ -261,7 +419,7 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   ap:
-    ssid: "Formiguinhas"
+    ssid: "Keypad-C6-Fallback"
     password: !secret wifi_password
 
 captive_portal:
@@ -387,10 +545,134 @@ globals:
     type: std::string
     restore_value: yes
     initial_value: '""'
+  - id: tag_slot_1
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_2
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_3
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_4
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_5
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_6
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_7
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_8
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_9
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_10
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_11
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_12
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_13
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_14
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_15
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_16
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_17
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_18
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_19
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_20
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_21
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_22
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_23
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_24
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_25
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_26
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_27
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_28
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_29
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: tag_slot_30
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
   - id: last_slot_used
     type: int
     restore_value: no
     initial_value: '0'
+  - id: last_source
+    type: std::string
+    restore_value: no
+    initial_value: '""'
   - id: failed_attempts
     type: int
     restore_value: no
@@ -407,6 +689,10 @@ globals:
     type: int
     restore_value: yes
     initial_value: '5'
+  - id: learn_mode_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
 
 wiegand:
   - id: my_keypad
@@ -423,7 +709,107 @@ wiegand:
     on_key:
       - lambda: 'ESP_LOGI("wiegand", "KEY PRESS: %d", x);'
     on_tag:
-      - lambda: 'ESP_LOGI("wiegand", "TAG: %s", x.c_str());'
+      - lambda: |-
+          std::string scanned = x;
+          id(last_scanned_tag).publish_state(scanned);
+          ESP_LOGI("wiegand", "TAG: %s", scanned.c_str());
+
+          // Learn mode: register tag in next available slot
+          if (id(learn_mode_active)) {
+            id(learn_mode_active) = false;
+            id(tag_learn_mode).publish_state(false);
+
+            std::string *tag_slots[] = {
+              &id(tag_slot_1),  &id(tag_slot_2),  &id(tag_slot_3),
+              &id(tag_slot_4),  &id(tag_slot_5),  &id(tag_slot_6),
+              &id(tag_slot_7),  &id(tag_slot_8),  &id(tag_slot_9),
+              &id(tag_slot_10), &id(tag_slot_11), &id(tag_slot_12),
+              &id(tag_slot_13), &id(tag_slot_14), &id(tag_slot_15),
+              &id(tag_slot_16), &id(tag_slot_17), &id(tag_slot_18),
+              &id(tag_slot_19), &id(tag_slot_20), &id(tag_slot_21),
+              &id(tag_slot_22), &id(tag_slot_23), &id(tag_slot_24),
+              &id(tag_slot_25), &id(tag_slot_26), &id(tag_slot_27),
+              &id(tag_slot_28), &id(tag_slot_29), &id(tag_slot_30)
+            };
+
+            // Check if tag already registered
+            for (int i = 0; i < 30; i++) {
+              if (!tag_slots[i]->empty() && *tag_slots[i] == scanned) {
+                ESP_LOGW("keypad", "Tag already registered in slot %d", i + 1);
+                return;
+              }
+            }
+
+            // Find first empty slot
+            for (int i = 0; i < 30; i++) {
+              if (tag_slots[i]->empty()) {
+                *tag_slots[i] = scanned;
+                ESP_LOGI("keypad", "Tag learned in slot %d: %s", i + 1, scanned.c_str());
+                return;
+              }
+            }
+            ESP_LOGW("keypad", "All tag slots full, cannot learn tag");
+            return;
+          }
+
+          // Normal mode: check tag against registered tags
+          const int MAX_FAILED = 5;
+          const uint32_t LOCKOUT_MS = 60000;
+
+          if (id(failed_attempts) >= MAX_FAILED && millis() < id(lockout_until)) {
+            ESP_LOGW("keypad", "Keypad locked out for %lu more seconds",
+                     (id(lockout_until) - millis()) / 1000);
+            id(last_slot_used) = -1;
+            id(last_source) = "tag";
+            id(keypad_code_event).trigger("tag_lockout");
+            return;
+          }
+          if (id(failed_attempts) >= MAX_FAILED) {
+            id(failed_attempts) = 0;
+          }
+
+          const std::string* slots[] = {
+            &id(tag_slot_1),  &id(tag_slot_2),  &id(tag_slot_3),
+            &id(tag_slot_4),  &id(tag_slot_5),  &id(tag_slot_6),
+            &id(tag_slot_7),  &id(tag_slot_8),  &id(tag_slot_9),
+            &id(tag_slot_10), &id(tag_slot_11), &id(tag_slot_12),
+            &id(tag_slot_13), &id(tag_slot_14), &id(tag_slot_15),
+            &id(tag_slot_16), &id(tag_slot_17), &id(tag_slot_18),
+            &id(tag_slot_19), &id(tag_slot_20), &id(tag_slot_21),
+            &id(tag_slot_22), &id(tag_slot_23), &id(tag_slot_24),
+            &id(tag_slot_25), &id(tag_slot_26), &id(tag_slot_27),
+            &id(tag_slot_28), &id(tag_slot_29), &id(tag_slot_30)
+          };
+          int matched_slot = 0;
+          for (int i = 0; i < 30; i++) {
+            if (!slots[i]->empty() && scanned == *slots[i]) {
+              matched_slot = i + 1;
+              break;
+            }
+          }
+          id(last_slot_used) = matched_slot;
+          id(last_source) = "tag";
+          if (matched_slot > 0) {
+            id(failed_attempts) = 0;
+            ESP_LOGI("keypad", "Valid tag - slot %d", matched_slot);
+            id(front_door_lock).unlock();
+            id(keypad_code_event).trigger("tag_valid");
+          } else {
+            id(failed_attempts) += 1;
+            ESP_LOGW("keypad", "Unknown tag (attempt %d/%d)", id(failed_attempts), MAX_FAILED);
+            if (id(failed_attempts) >= MAX_FAILED) {
+              id(lockout_until) = millis() + LOCKOUT_MS;
+              ESP_LOGW("keypad", "Too many failed attempts, locked out for %ds", LOCKOUT_MS / 1000);
+            }
+            id(keypad_code_event).trigger("tag_invalid");
+          }
+      - homeassistant.event:
+          event: esphome.keypad_code_entered
+          data:
+            source: !lambda 'return id(last_source);'
+            code_match: !lambda 'return id(last_slot_used) > 0 ? "true" : "false";'
+            slot: !lambda 'return to_string(id(last_slot_used));'
+            locked_out: !lambda 'return id(last_slot_used) == -1 ? "true" : "false";'
     on_raw:
       - lambda: 'ESP_LOGI("wiegand", "RAW: %d bits, value %llx", bits, value);'
 
@@ -444,6 +830,7 @@ key_collector:
             ESP_LOGW("keypad", "Keypad locked out for %lu more seconds",
                      (id(lockout_until) - millis()) / 1000);
             id(last_slot_used) = -1;
+            id(last_source) = "code";
             id(keypad_code_event).trigger("code_lockout");
             return;
           }
@@ -472,6 +859,7 @@ key_collector:
             }
           }
           id(last_slot_used) = matched_slot;
+          id(last_source) = "code";
           if (matched_slot > 0) {
             id(failed_attempts) = 0;
             ESP_LOGI("keypad", "Valid code entered - slot %d", matched_slot);
@@ -491,6 +879,7 @@ key_collector:
       - homeassistant.event:
           event: esphome.keypad_code_entered
           data:
+            source: !lambda 'return id(last_source);'
             code_match: !lambda 'return id(last_slot_used) > 0 ? "true" : "false";'
             slot: !lambda 'return to_string(id(last_slot_used));'
             locked_out: !lambda 'return id(last_slot_used) == -1 ? "true" : "false";'
@@ -509,6 +898,9 @@ event:
       - code_invalid
       - code_lockout
       - code_timeout
+      - tag_valid
+      - tag_invalid
+      - tag_lockout
 
 switch:
   - platform: gpio
@@ -520,6 +912,29 @@ switch:
     on_turn_on:
       - delay: !lambda 'return id(relay_pulse_seconds) * 1000;'
       - switch.turn_off: door_relay
+
+  - platform: template
+    name: "Tag Learn Mode"
+    id: tag_learn_mode
+    icon: mdi:card-plus
+    optimistic: true
+    on_turn_on:
+      - lambda: |-
+          id(learn_mode_active) = true;
+          ESP_LOGI("keypad", "Tag learn mode ON - scan a tag to register it");
+      - delay: 30s
+      - if:
+          condition:
+            lambda: 'return id(learn_mode_active);'
+          then:
+            - lambda: |-
+                id(learn_mode_active) = false;
+                ESP_LOGW("keypad", "Tag learn mode timed out");
+            - switch.turn_off: tag_learn_mode
+    on_turn_off:
+      - lambda: |-
+          id(learn_mode_active) = false;
+          ESP_LOGI("keypad", "Tag learn mode OFF");
 
 lock:
   - platform: template
@@ -571,3 +986,35 @@ number:
       - globals.set:
           id: relock_seconds
           value: !lambda 'return (int)x;'
+
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 30s
+
+  - platform: uptime
+    name: "Uptime"
+
+  - platform: internal_temperature
+    name: "CPU Temperature"
+    update_interval: 60s
+
+binary_sensor:
+  - platform: status
+    name: "Status"
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+    mac_address:
+      name: "MAC Address"
+
+  - platform: template
+    name: "Last Scanned Tag"
+    id: last_scanned_tag
+    icon: mdi:card-search
+
+button:
+  - platform: restart
+    name: "Restart"

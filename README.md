@@ -7,14 +7,16 @@ ESPHome configurations for a Wiegand keypad + RFID reader that controls a door l
 ## Features
 
 - **30 code slots** with NVS persistence (codes survive reboots)
-- **RFID tag support** via Wiegand 26-bit card reads
-- **5-attempt lockout** with 60-second cooldown
+- **30 RFID tag slots** with NVS persistence and Wiegand 26-bit card reads
+- **Tag learn mode** -- flip a switch in HA, scan a tag, and it auto-registers in the next empty slot
+- **5-attempt lockout** with 60-second cooldown (shared across codes and tags)
 - **Configurable relay pulse** duration (1-30s, default 5s)
 - **Auto-relock timer** (0-120s, 0 to disable)
-- **Home Assistant API actions**: `set_code`, `clear_code`, `get_codes`, `set_relay_pulse_time`, `set_relock_time`
-- **Home Assistant events**: `esphome.keypad_code_entered` with `code_valid`, `code_invalid`, `code_lockout`, `code_timeout` event types
+- **Home Assistant API actions** for codes (`set_code`, `clear_code`, `get_codes`), tags (`set_tag`, `clear_tag`, `get_tags`), and settings (`set_relay_pulse_time`, `set_relock_time`)
+- **Home Assistant events**: `esphome.keypad_code_entered` with `source` field (`code` or `tag`) and event types `code_valid`, `code_invalid`, `code_lockout`, `code_timeout`, `tag_valid`, `tag_invalid`, `tag_lockout`
 - **Lock entity** in HA with full lock/unlock control
 - **Diagnostic sensors**: WiFi signal, uptime, CPU temperature, IP/MAC address
+- **Last Scanned Tag** text sensor -- always shows the most recently scanned tag ID
 
 ## Supported Hardware
 
@@ -130,6 +132,22 @@ secrets.yaml.example   # Template for secrets.yaml
      code: "1234"
    ```
 
+7. **Register RFID tags** -- Two options:
+
+   **Option A: Learn mode (easiest)**
+   - In HA, toggle the **Tag Learn Mode** switch ON.
+   - Scan the tag on the keypad within 30 seconds.
+   - The tag is saved in the next available slot. The switch turns itself OFF.
+
+   **Option B: API action**
+   ```yaml
+   action: esphome.keypad_lock_set_tag
+   data:
+     slot: 1
+     tag: "0123456789"
+   ```
+   Use the "Last Scanned Tag" sensor value to get the tag ID if you don't know it.
+
 ## Home Assistant Blueprints
 
 ### Keypad Notifications
@@ -186,9 +204,12 @@ The lock config exposes these actions through the ESPHome API:
 
 | Action | Parameters | Description |
 |---|---|---|
-| `set_code` | `slot` (1-30), `code` (string, min 4 digits) | Set a code in a slot. Rejects duplicates. |
-| `clear_code` | `slot` (1-30) | Clear a code slot. |
-| `get_codes` | _(none)_ | Returns all 30 slots (empty string = unused). |
+| `set_code` | `slot` (1-30), `code` (string, min 4 digits) | Set a PIN code in a slot. Rejects duplicates. |
+| `clear_code` | `slot` (1-30) | Clear a PIN code slot. |
+| `get_codes` | _(none)_ | Returns all 30 code slots (empty string = unused). |
+| `set_tag` | `slot` (1-30), `tag` (string) | Register an RFID tag in a slot. Rejects duplicates. |
+| `clear_tag` | `slot` (1-30) | Clear an RFID tag slot. |
+| `get_tags` | _(none)_ | Returns all 30 tag slots (empty string = unused). |
 | `set_relay_pulse_time` | `seconds` (1-30) | How long the relay stays on per unlock. |
 | `set_relock_time` | `seconds` (0-120) | Auto-relock delay. 0 = disabled. |
 
