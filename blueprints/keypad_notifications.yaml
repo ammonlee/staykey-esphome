@@ -1,0 +1,84 @@
+blueprint:
+  name: Keypad Lock Notifications
+  description: >
+    Send notifications when codes are entered on an ESPHome Wiegand keypad lock.
+    Notifies on valid codes, invalid attempts, and lockout events.
+  domain: automation
+  input:
+    lock_entity:
+      name: Keypad Lock Entity
+      description: The ESPHome lock entity for your keypad.
+      selector:
+        entity:
+          domain: lock
+    notify_service:
+      name: Notification Service
+      description: >
+        The notify service to call (e.g. notify.mobile_app_your_phone).
+      selector:
+        text:
+      default: notify.notify
+    notify_valid:
+      name: Notify on Valid Code
+      description: Send a notification when a valid code is entered.
+      selector:
+        boolean:
+      default: true
+    notify_invalid:
+      name: Notify on Invalid Code
+      description: Send a notification when an invalid code is entered.
+      selector:
+        boolean:
+      default: true
+    notify_lockout:
+      name: Notify on Lockout
+      description: Send a notification when the keypad is locked out after too many failed attempts.
+      selector:
+        boolean:
+      default: true
+
+triggers:
+  - trigger: event
+    event_type: esphome.keypad_code_entered
+
+actions:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.event.data.code_match == 'true' }}"
+          - condition: template
+            value_template: "{{ is_state('input_boolean.placeholder', 'on') or true }}"
+          - "{{ iif(notify_valid, true, false) }}"
+        sequence:
+          - action: "{{ notify_service }}"
+            data:
+              title: "Keypad: Valid Code"
+              message: >
+                Valid code entered on keypad (slot {{ trigger.event.data.slot }}).
+
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.event.data.locked_out == 'true' }}"
+          - "{{ iif(notify_lockout, true, false) }}"
+        sequence:
+          - action: "{{ notify_service }}"
+            data:
+              title: "Keypad: LOCKOUT"
+              message: >
+                Keypad is locked out after too many failed attempts!
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trigger.event.data.code_match == 'false' and
+                 trigger.event.data.locked_out == 'false' }}
+          - "{{ iif(notify_invalid, true, false) }}"
+        sequence:
+          - action: "{{ notify_service }}"
+            data:
+              title: "Keypad: Invalid Code"
+              message: >
+                An invalid code was entered on the keypad.
+
+mode: parallel
+max: 10

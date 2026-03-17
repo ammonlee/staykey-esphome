@@ -1,0 +1,48 @@
+blueprint:
+  name: Keypad Garage Door Toggle
+  description: >
+    Toggle a garage door when a valid code is entered on an ESPHome Wiegand keypad lock.
+    If the garage is open, it closes; if closed, it opens.
+  domain: automation
+  input:
+    lock_entity:
+      name: Keypad Lock Entity
+      description: The ESPHome lock entity for your keypad.
+      selector:
+        entity:
+          domain: lock
+    garage_entity:
+      name: Garage Door Entity
+      description: The garage door cover entity to toggle.
+      selector:
+        entity:
+          domain: cover
+
+triggers:
+  - trigger: device
+    domain: lock
+    entity_id: !input lock_entity
+    type: unlocked
+
+conditions: []
+
+actions:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input garage_entity
+            state: "open"
+        sequence:
+          - action: cover.close_cover
+            target:
+              entity_id: !input garage_entity
+      - conditions:
+          - condition: state
+            entity_id: !input garage_entity
+            state: "closed"
+        sequence:
+          - action: cover.open_cover
+            target:
+              entity_id: !input garage_entity
+
+mode: single

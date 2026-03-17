@@ -1,0 +1,600 @@
+esphome:
+  name: keypad-lock
+  friendly_name: Keypad Lock
+
+esp32:
+  board: esp32-c3-devkitm-1
+  variant: esp32c3
+  framework:
+    type: esp-idf
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+  actions:
+    - action: set_code
+      supports_response: optional
+      variables:
+        slot: int
+        code: string
+      then:
+        - if:
+            condition:
+              lambda: 'return slot >= 1 && slot <= 30 && code.length() >= 4;'
+            then:
+              - if:
+                  condition:
+                    lambda: |-
+                      const std::string* slots[] = {
+                        &id(code_slot_1),  &id(code_slot_2),  &id(code_slot_3),
+                        &id(code_slot_4),  &id(code_slot_5),  &id(code_slot_6),
+                        &id(code_slot_7),  &id(code_slot_8),  &id(code_slot_9),
+                        &id(code_slot_10), &id(code_slot_11), &id(code_slot_12),
+                        &id(code_slot_13), &id(code_slot_14), &id(code_slot_15),
+                        &id(code_slot_16), &id(code_slot_17), &id(code_slot_18),
+                        &id(code_slot_19), &id(code_slot_20), &id(code_slot_21),
+                        &id(code_slot_22), &id(code_slot_23), &id(code_slot_24),
+                        &id(code_slot_25), &id(code_slot_26), &id(code_slot_27),
+                        &id(code_slot_28), &id(code_slot_29), &id(code_slot_30)
+                      };
+                      for (int i = 0; i < 30; i++) {
+                        if (i != (slot - 1) && !slots[i]->empty() && *slots[i] == code) {
+                          return false;
+                        }
+                      }
+                      return true;
+                  then:
+                    - lambda: |-
+                        std::string *target = nullptr;
+                        switch (slot) {
+                          case 1:  target = &id(code_slot_1);  break;
+                          case 2:  target = &id(code_slot_2);  break;
+                          case 3:  target = &id(code_slot_3);  break;
+                          case 4:  target = &id(code_slot_4);  break;
+                          case 5:  target = &id(code_slot_5);  break;
+                          case 6:  target = &id(code_slot_6);  break;
+                          case 7:  target = &id(code_slot_7);  break;
+                          case 8:  target = &id(code_slot_8);  break;
+                          case 9:  target = &id(code_slot_9);  break;
+                          case 10: target = &id(code_slot_10); break;
+                          case 11: target = &id(code_slot_11); break;
+                          case 12: target = &id(code_slot_12); break;
+                          case 13: target = &id(code_slot_13); break;
+                          case 14: target = &id(code_slot_14); break;
+                          case 15: target = &id(code_slot_15); break;
+                          case 16: target = &id(code_slot_16); break;
+                          case 17: target = &id(code_slot_17); break;
+                          case 18: target = &id(code_slot_18); break;
+                          case 19: target = &id(code_slot_19); break;
+                          case 20: target = &id(code_slot_20); break;
+                          case 21: target = &id(code_slot_21); break;
+                          case 22: target = &id(code_slot_22); break;
+                          case 23: target = &id(code_slot_23); break;
+                          case 24: target = &id(code_slot_24); break;
+                          case 25: target = &id(code_slot_25); break;
+                          case 26: target = &id(code_slot_26); break;
+                          case 27: target = &id(code_slot_27); break;
+                          case 28: target = &id(code_slot_28); break;
+                          case 29: target = &id(code_slot_29); break;
+                          case 30: target = &id(code_slot_30); break;
+                        }
+                        if (target) {
+                          *target = code;
+                          ESP_LOGI("keypad", "Code set in slot %d", slot);
+                        }
+                    - homeassistant.event:
+                        event: esphome.keypad_code_set
+                        data:
+                          slot: !lambda 'return to_string(slot);'
+                          success: "true"
+                    - api.respond:
+                        data: !lambda |-
+                          root["slot"] = slot;
+                          root["success"] = true;
+                          root["code"] = code;
+                          root["message"] = "Code set in slot " + to_string(slot);
+                  else:
+                    - api.respond:
+                        success: false
+                        error_message: "Code already in use in another slot"
+            else:
+              - api.respond:
+                  success: false
+                  error_message: "Invalid slot (1-30) or code too short (min 4 digits)"
+
+    - action: clear_code
+      supports_response: optional
+      variables:
+        slot: int
+      then:
+        - if:
+            condition:
+              lambda: 'return slot >= 1 && slot <= 30;'
+            then:
+              - lambda: |-
+                  std::string *target = nullptr;
+                  switch (slot) {
+                    case 1:  target = &id(code_slot_1);  break;
+                    case 2:  target = &id(code_slot_2);  break;
+                    case 3:  target = &id(code_slot_3);  break;
+                    case 4:  target = &id(code_slot_4);  break;
+                    case 5:  target = &id(code_slot_5);  break;
+                    case 6:  target = &id(code_slot_6);  break;
+                    case 7:  target = &id(code_slot_7);  break;
+                    case 8:  target = &id(code_slot_8);  break;
+                    case 9:  target = &id(code_slot_9);  break;
+                    case 10: target = &id(code_slot_10); break;
+                    case 11: target = &id(code_slot_11); break;
+                    case 12: target = &id(code_slot_12); break;
+                    case 13: target = &id(code_slot_13); break;
+                    case 14: target = &id(code_slot_14); break;
+                    case 15: target = &id(code_slot_15); break;
+                    case 16: target = &id(code_slot_16); break;
+                    case 17: target = &id(code_slot_17); break;
+                    case 18: target = &id(code_slot_18); break;
+                    case 19: target = &id(code_slot_19); break;
+                    case 20: target = &id(code_slot_20); break;
+                    case 21: target = &id(code_slot_21); break;
+                    case 22: target = &id(code_slot_22); break;
+                    case 23: target = &id(code_slot_23); break;
+                    case 24: target = &id(code_slot_24); break;
+                    case 25: target = &id(code_slot_25); break;
+                    case 26: target = &id(code_slot_26); break;
+                    case 27: target = &id(code_slot_27); break;
+                    case 28: target = &id(code_slot_28); break;
+                    case 29: target = &id(code_slot_29); break;
+                    case 30: target = &id(code_slot_30); break;
+                  }
+                  if (target) {
+                    *target = "";
+                    ESP_LOGI("keypad", "Slot %d cleared", slot);
+                  }
+              - homeassistant.event:
+                  event: esphome.keypad_code_cleared
+                  data:
+                    slot: !lambda 'return to_string(slot);'
+                    success: "true"
+              - api.respond:
+                  data: !lambda |-
+                    root["slot"] = slot;
+                    root["success"] = true;
+                    root["message"] = "Slot " + to_string(slot) + " cleared";
+            else:
+              - api.respond:
+                  success: false
+                  error_message: "Invalid slot (must be 1-30)"
+
+    - action: get_codes
+      supports_response: only
+      then:
+        - api.respond:
+            data: !lambda |-
+              root["slot_1"]  = id(code_slot_1);
+              root["slot_2"]  = id(code_slot_2);
+              root["slot_3"]  = id(code_slot_3);
+              root["slot_4"]  = id(code_slot_4);
+              root["slot_5"]  = id(code_slot_5);
+              root["slot_6"]  = id(code_slot_6);
+              root["slot_7"]  = id(code_slot_7);
+              root["slot_8"]  = id(code_slot_8);
+              root["slot_9"]  = id(code_slot_9);
+              root["slot_10"] = id(code_slot_10);
+              root["slot_11"] = id(code_slot_11);
+              root["slot_12"] = id(code_slot_12);
+              root["slot_13"] = id(code_slot_13);
+              root["slot_14"] = id(code_slot_14);
+              root["slot_15"] = id(code_slot_15);
+              root["slot_16"] = id(code_slot_16);
+              root["slot_17"] = id(code_slot_17);
+              root["slot_18"] = id(code_slot_18);
+              root["slot_19"] = id(code_slot_19);
+              root["slot_20"] = id(code_slot_20);
+              root["slot_21"] = id(code_slot_21);
+              root["slot_22"] = id(code_slot_22);
+              root["slot_23"] = id(code_slot_23);
+              root["slot_24"] = id(code_slot_24);
+              root["slot_25"] = id(code_slot_25);
+              root["slot_26"] = id(code_slot_26);
+              root["slot_27"] = id(code_slot_27);
+              root["slot_28"] = id(code_slot_28);
+              root["slot_29"] = id(code_slot_29);
+              root["slot_30"] = id(code_slot_30);
+
+    - action: set_relay_pulse_time
+      supports_response: optional
+      variables:
+        seconds: int
+      then:
+        - if:
+            condition:
+              lambda: 'return seconds >= 1 && seconds <= 30;'
+            then:
+              - globals.set:
+                  id: relay_pulse_seconds
+                  value: !lambda 'return seconds;'
+              - number.set:
+                  id: relay_pulse_time
+                  value: !lambda 'return seconds;'
+              - api.respond:
+                  data: !lambda |-
+                    root["seconds"] = seconds;
+                    root["success"] = true;
+                    root["message"] = "Relay pulse set to " + to_string(seconds) + "s";
+            else:
+              - api.respond:
+                  success: false
+                  error_message: "Invalid value (must be 1-30 seconds)"
+
+    - action: set_relock_time
+      supports_response: optional
+      variables:
+        seconds: int
+      then:
+        - if:
+            condition:
+              lambda: 'return seconds >= 0 && seconds <= 120;'
+            then:
+              - globals.set:
+                  id: relock_seconds
+                  value: !lambda 'return seconds;'
+              - number.set:
+                  id: relock_time
+                  value: !lambda 'return seconds;'
+              - api.respond:
+                  data: !lambda |-
+                    root["seconds"] = seconds;
+                    root["success"] = true;
+                    root["message"] = seconds == 0
+                      ? "Auto-relock disabled"
+                      : "Relock time set to " + to_string(seconds) + "s";
+            else:
+              - api.respond:
+                  success: false
+                  error_message: "Invalid value (must be 0-120 seconds)"
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Keypad-C3-Fallback"
+    password: !secret wifi_password
+
+captive_portal:
+
+globals:
+  - id: code_slot_1
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_2
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_3
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_4
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_5
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_6
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_7
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_8
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_9
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_10
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_11
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_12
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_13
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_14
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_15
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_16
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_17
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_18
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_19
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_20
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_21
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_22
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_23
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_24
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_25
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_26
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_27
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_28
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_29
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: code_slot_30
+    type: std::string
+    restore_value: yes
+    initial_value: '""'
+  - id: last_slot_used
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: failed_attempts
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: lockout_until
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+  - id: relay_pulse_seconds
+    type: int
+    restore_value: yes
+    initial_value: '5'
+  - id: relock_seconds
+    type: int
+    restore_value: yes
+    initial_value: '5'
+
+wiegand:
+  - id: my_keypad
+    d0:
+      number: GPIO0
+      mode:
+        input: true
+        pullup: true
+    d1:
+      number: GPIO1
+      mode:
+        input: true
+        pullup: true
+    on_key:
+      - lambda: 'ESP_LOGI("wiegand", "KEY PRESS: %d", x);'
+    on_tag:
+      - lambda: 'ESP_LOGI("wiegand", "TAG: %s", x.c_str());'
+    on_raw:
+      - lambda: 'ESP_LOGI("wiegand", "RAW: %d bits, value %llx", bits, value);'
+
+key_collector:
+  - id: pin_collector
+    source_id: my_keypad
+    min_length: 4
+    max_length: 8
+    end_keys: "#"
+    back_keys: "*"
+    timeout: 10s
+    on_result:
+      - lambda: |-
+          const int MAX_FAILED = 5;
+          const uint32_t LOCKOUT_MS = 60000;
+
+          if (id(failed_attempts) >= MAX_FAILED && millis() < id(lockout_until)) {
+            ESP_LOGW("keypad", "Keypad locked out for %lu more seconds",
+                     (id(lockout_until) - millis()) / 1000);
+            id(last_slot_used) = -1;
+            id(keypad_code_event).trigger("code_lockout");
+            return;
+          }
+          if (id(failed_attempts) >= MAX_FAILED) {
+            id(failed_attempts) = 0;
+          }
+
+          std::string entered = x;
+          const std::string* slots[] = {
+            &id(code_slot_1),  &id(code_slot_2),  &id(code_slot_3),
+            &id(code_slot_4),  &id(code_slot_5),  &id(code_slot_6),
+            &id(code_slot_7),  &id(code_slot_8),  &id(code_slot_9),
+            &id(code_slot_10), &id(code_slot_11), &id(code_slot_12),
+            &id(code_slot_13), &id(code_slot_14), &id(code_slot_15),
+            &id(code_slot_16), &id(code_slot_17), &id(code_slot_18),
+            &id(code_slot_19), &id(code_slot_20), &id(code_slot_21),
+            &id(code_slot_22), &id(code_slot_23), &id(code_slot_24),
+            &id(code_slot_25), &id(code_slot_26), &id(code_slot_27),
+            &id(code_slot_28), &id(code_slot_29), &id(code_slot_30)
+          };
+          int matched_slot = 0;
+          for (int i = 0; i < 30; i++) {
+            if (!slots[i]->empty() && entered == *slots[i]) {
+              matched_slot = i + 1;
+              break;
+            }
+          }
+          id(last_slot_used) = matched_slot;
+          if (matched_slot > 0) {
+            id(failed_attempts) = 0;
+            ESP_LOGI("keypad", "Valid code entered - slot %d", matched_slot);
+            id(front_door_lock).unlock();
+            id(keypad_code_event).trigger("code_valid");
+          } else {
+            id(failed_attempts) += 1;
+            ESP_LOGW("keypad", "Invalid code entered (attempt %d/%d)",
+                     id(failed_attempts), MAX_FAILED);
+            if (id(failed_attempts) >= MAX_FAILED) {
+              id(lockout_until) = millis() + LOCKOUT_MS;
+              ESP_LOGW("keypad", "Too many failed attempts, locked out for %ds",
+                       LOCKOUT_MS / 1000);
+            }
+            id(keypad_code_event).trigger("code_invalid");
+          }
+      - homeassistant.event:
+          event: esphome.keypad_code_entered
+          data:
+            code_match: !lambda 'return id(last_slot_used) > 0 ? "true" : "false";'
+            slot: !lambda 'return to_string(id(last_slot_used));'
+            locked_out: !lambda 'return id(last_slot_used) == -1 ? "true" : "false";'
+    on_timeout:
+      - lambda: |-
+          ESP_LOGW("keypad", "Code entry timed out");
+          id(keypad_code_event).trigger("code_timeout");
+
+event:
+  - platform: template
+    name: "Keypad Code Entered"
+    id: keypad_code_event
+    device_class: button
+    event_types:
+      - code_valid
+      - code_invalid
+      - code_lockout
+      - code_timeout
+
+switch:
+  - platform: gpio
+    id: door_relay
+    pin:
+      number: GPIO2
+      mode: OUTPUT
+    internal: true
+    on_turn_on:
+      - delay: !lambda 'return id(relay_pulse_seconds) * 1000;'
+      - switch.turn_off: door_relay
+
+lock:
+  - platform: template
+    id: front_door_lock
+    name: "Door Lock"
+    optimistic: true
+    on_unlock:
+      - switch.turn_on: door_relay
+      - script.execute: relock_timer
+
+script:
+  - id: relock_timer
+    mode: restart
+    then:
+      - if:
+          condition:
+            lambda: 'return id(relock_seconds) > 0;'
+          then:
+            - delay: !lambda 'return id(relock_seconds) * 1000;'
+            - lock.lock: front_door_lock
+
+number:
+  - platform: template
+    name: "Relay Pulse Duration"
+    id: relay_pulse_time
+    unit_of_measurement: "s"
+    min_value: 1
+    max_value: 30
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 5
+    set_action:
+      - globals.set:
+          id: relay_pulse_seconds
+          value: !lambda 'return (int)x;'
+
+  - platform: template
+    name: "Relock Time"
+    id: relock_time
+    unit_of_measurement: "s"
+    min_value: 0
+    max_value: 120
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 5
+    set_action:
+      - globals.set:
+          id: relock_seconds
+          value: !lambda 'return (int)x;'
+
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 30s
+
+  - platform: uptime
+    name: "Uptime"
+
+  - platform: internal_temperature
+    name: "CPU Temperature"
+    update_interval: 60s
+
+binary_sensor:
+  - platform: status
+    name: "Status"
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+    mac_address:
+      name: "MAC Address"
+
+button:
+  - platform: restart
+    name: "Restart"

@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" font-family="Consolas, monospace" font-size="13">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#555"/>
+    </marker>
+  </defs>
+
+  <style>
+    .box { stroke: #333; stroke-width: 2; rx: 6; ry: 6; }
+    .label { font-weight: bold; font-size: 15px; }
+    .pin { font-size: 12px; fill: #444; }
+    .wire { stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    .wire-d0 { stroke: #2196F3; }
+    .wire-d1 { stroke: #4CAF50; }
+    .wire-gnd { stroke: #333; }
+    .wire-pwr { stroke: #F44336; }
+    .wire-relay { stroke: #FF9800; }
+    .wire-lock { stroke: #9C27B0; }
+    .note { font-size: 11px; fill: #666; font-style: italic; }
+  </style>
+
+  <!-- Title -->
+  <text x="450" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#222">ESPHome Keypad Lock  Wiring Diagram</text>
+  <text x="450" y="48" text-anchor="middle" class="note">ESP32-C3 Super Mini / Xiao ESP32-C6 (same pin assignments)</text>
+
+  <!-- Power Supply 12V -->
+  <rect x="30" y="70" width="160" height="100" class="box" fill="#FFF3E0"/>
+  <text x="110" y="95" text-anchor="middle" class="label">12V Power Supply</text>
+  <text x="110" y="115" text-anchor="middle" class="pin">DC 12V / 2A+</text>
+  <text x="55" y="145" class="pin">+12V Ï</text>
+  <text x="55" y="160" class="pin">GND  Ï</text>
+
+  <!-- Wiegand Keypad -->
+  <rect x="30" y="220" width="200" height="200" class="box" fill="#E3F2FD"/>
+  <text x="130" y="248" text-anchor="middle" class="label">Wiegand Keypad</text>
+  <text x="130" y="266" text-anchor="middle" class="note">WG26/34 Reader</text>
+  <text x="55" y="295" class="pin">12V  Ï</text>
+  <text x="55" y="315" class="pin">GND  Ï</text>
+  <text x="55" y="340" class="pin">D0   Ï</text>
+  <text x="55" y="360" class="pin">D1   Ï</text>
+  <text x="55" y="385" class="pin">BELL Ï</text>
+  <text x="55" y="405" class="pin">OPEN Ï</text>
+
+  <!-- ESP32 Board -->
+  <rect x="350" y="220" width="200" height="200" class="box" fill="#E8F5E9"/>
+  <text x="450" y="248" text-anchor="middle" class="label">ESP32 Board</text>
+  <text x="450" y="266" text-anchor="middle" class="note">C3 Super Mini / Xiao C6</text>
+  <text x="375" y="300" class="pin">Ï GPIO0  (D0 in)</text>
+  <text x="375" y="325" class="pin">Ï GPIO1  (D1 in)</text>
+  <text x="375" y="355" class="pin">Ï GPIO2  (relay out)</text>
+  <text x="375" y="385" class="pin">Ï 3.3V</text>
+  <text x="375" y="405" class="pin">Ï GND</text>
+
+  <!-- Relay Module -->
+  <rect x="650" y="220" width="200" height="130" class="box" fill="#FFF8E1"/>
+  <text x="750" y="248" text-anchor="middle" class="label">Relay Module</text>
+  <text x="750" y="266" text-anchor="middle" class="note">3.3V or 5V trigger</text>
+  <text x="675" y="295" class="pin">Ï IN   (signal)</text>
+  <text x="675" y="315" class="pin">Ï VCC  (3.3V)</text>
+  <text x="675" y="335" class="pin">Ï GND</text>
+  <text x="810" y="295" class="pin">COM Ï</text>
+  <text x="810" y="315" class="pin">NO  Ï</text>
+  <text x="810" y="335" class="pin">NC  Ï</text>
+
+  <!-- Door Lock / Strike -->
+  <rect x="650" y="400" width="200" height="90" class="box" fill="#F3E5F5"/>
+  <text x="750" y="428" text-anchor="middle" class="label">Electric Lock</text>
+  <text x="750" y="448" text-anchor="middle" class="note">Door strike / mag lock</text>
+  <text x="675" y="475" class="pin">Ï Terminal 1</text>
+  <text x="810" y="475" class="pin">Terminal 2 Ï</text>
+
+  <!-- USB Power for ESP32 -->
+  <rect x="350" y="450" width="200" height="50" class="box" fill="#ECEFF1"/>
+  <text x="450" y="480" text-anchor="middle" class="pin">USB-C (power + flash)</text>
+
+  <!-- Wires: 12V PSU to Keypad -->
+  <line x1="190" y1="142" x2="230" y2="142" class="wire wire-pwr"/>
+  <line x1="230" y1="142" x2="230" y2="290" class="wire wire-pwr" style="marker-end: none"/>
+  <line x1="230" y1="290" x2="78" y2="290" class="wire wire-pwr"/>
+  <line x1="190" y1="157" x2="248" y2="157" class="wire wire-gnd"/>
+  <line x1="248" y1="157" x2="248" y2="310" class="wire wire-gnd" style="marker-end: none"/>
+  <line x1="248" y1="310" x2="78" y2="310" class="wire wire-gnd"/>
+
+  <!-- Wires: Keypad D0 to ESP32 GPIO0 -->
+  <line x1="230" y1="336" x2="370" y2="296" class="wire wire-d0"/>
+  <text x="285" y="306" class="pin" fill="#2196F3">D0</text>
+
+  <!-- Wires: Keypad D1 to ESP32 GPIO1 -->
+  <line x1="230" y1="356" x2="370" y2="321" class="wire wire-d1"/>
+  <text x="285" y="340" class="pin" fill="#4CAF50">D1</text>
+
+  <!-- Wires: Keypad GND to ESP32 GND -->
+  <line x1="230" y1="312" x2="300" y2="312" class="wire wire-gnd" style="marker-end: none"/>
+  <line x1="300" y1="312" x2="300" y2="401" class="wire wire-gnd" style="marker-end: none"/>
+  <line x1="300" y1="401" x2="370" y2="401" class="wire wire-gnd"/>
+  <text x="305" y="370" class="pin" fill="#333">GND</text>
+
+  <!-- Wires: ESP32 GPIO2 to Relay IN -->
+  <line x1="555" y1="351" x2="605" y2="351" class="wire wire-relay" style="marker-end: none"/>
+  <line x1="605" y1="351" x2="605" y2="291" class="wire wire-relay" style="marker-end: none"/>
+  <line x1="605" y1="291" x2="670" y2="291" class="wire wire-relay"/>
+  <text x="575" y="285" class="pin" fill="#FF9800">GPIO2</text>
+
+  <!-- Wires: ESP32 3.3V to Relay VCC -->
+  <line x1="555" y1="381" x2="620" y2="381" class="wire wire-pwr" style="marker-end: none"/>
+  <line x1="620" y1="381" x2="620" y2="311" class="wire wire-pwr" style="marker-end: none"/>
+  <line x1="620" y1="311" x2="670" y2="311" class="wire wire-pwr"/>
+
+  <!-- Wires: ESP32 GND to Relay GND -->
+  <line x1="555" y1="401" x2="635" y2="401" class="wire wire-gnd" style="marker-end: none"/>
+  <line x1="635" y1="401" x2="635" y2="331" class="wire wire-gnd" style="marker-end: none"/>
+  <line x1="635" y1="331" x2="670" y2="331" class="wire wire-gnd"/>
+
+  <!-- Wires: Relay NO to Lock -->
+  <line x1="845" y1="311" x2="870" y2="311" class="wire wire-lock" style="marker-end: none"/>
+  <line x1="870" y1="311" x2="870" y2="471" class="wire wire-lock" style="marker-end: none"/>
+  <line x1="870" y1="471" x2="853" y2="471" class="wire wire-lock"/>
+
+  <!-- Wires: 12V to Lock via Relay COM -->
+  <line x1="845" y1="291" x2="885" y2="291" class="wire wire-pwr" style="marker-end: none"/>
+  <line x1="885" y1="291" x2="885" y2="160" class="wire wire-pwr" style="marker-end: none"/>
+  <line x1="885" y1="160" x2="248" y2="160" class="wire wire-pwr" style="marker-end: none"/>
+  <text x="560" y="153" class="pin" fill="#F44336">+12V bus</text>
+
+  <!-- Wires: Lock terminal 2 to GND -->
+  <line x1="700" y1="471" x2="660" y2="471" class="wire wire-gnd" style="marker-end: none"/>
+  <line x1="660" y1="471" x2="660" y2="500" class="wire wire-gnd" style="marker-end: none"/>
+  <line x1="660" y1="500" x2="300" y2="500" class="wire wire-gnd" style="marker-end: none"/>
+  <line x1="300" y1="500" x2="300" y2="490" class="wire wire-gnd" style="marker-end: none"/>
+  <text x="450" y="513" class="pin" fill="#333">GND bus</text>
+
+  <!-- Legend -->
+  <rect x="30" y="455" width="220" height="55" rx="4" ry="4" fill="#FAFAFA" stroke="#DDD"/>
+  <text x="45" y="472" font-size="11" font-weight="bold" fill="#333">Wire Colors:</text>
+  <line x1="45" y1="485" x2="70" y2="485" stroke="#F44336" stroke-width="2"/>
+  <text x="75" y="489" font-size="11" fill="#666">+12V</text>
+  <line x1="110" y1="485" x2="135" y2="485" stroke="#333" stroke-width="2"/>
+  <text x="140" y="489" font-size="11" fill="#666">GND</text>
+  <line x1="45" y1="500" x2="70" y2="500" stroke="#2196F3" stroke-width="2"/>
+  <text x="75" y="504" font-size="11" fill="#666">D0</text>
+  <line x1="110" y1="500" x2="135" y2="500" stroke="#4CAF50" stroke-width="2"/>
+  <text x="140" y="504" font-size="11" fill="#666">D1</text>
+  <line x1="170" y1="500" x2="195" y2="500" stroke="#FF9800" stroke-width="2"/>
+  <text x="200" y="504" font-size="11" fill="#666">Relay</text>
+</svg>
