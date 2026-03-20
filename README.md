@@ -221,6 +221,25 @@ The lock config exposes these actions through the ESPHome API:
 | `set_relay_pulse_time` | `seconds` (1-30) | How long the relay stays on per unlock. |
 | `set_relock_time` | `seconds` (0-120) | Auto-relock delay. 0 = disabled. |
 
+## Device Registry
+
+This device reports as `esphome` by `staykey` to Home Assistant via the ESPHome `project` metadata. The corresponding Staykey device registry entry:
+
+```json
+{
+    "manufacturer": "staykey",
+    "model": "esphome",
+    "protocol": "wifi",
+    "type": "lock",
+    "notes": "Wiegand keypad + RFID access control",
+    "capabilities": {
+        "supports_access_codes": true,
+        "supports_access_code_validation": true
+    },
+    "default_settings": {}
+}
+```
+
 ## Troubleshooting
 
 ### Keys come through as wrong numbers (inverted)

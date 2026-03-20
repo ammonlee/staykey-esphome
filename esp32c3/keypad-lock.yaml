@@ -1,6 +1,9 @@
 esphome:
   name: keypad-lock
   friendly_name: Keypad Lock
+  project:
+    name: staykey.esphome
+    version: "1.0.0"
 
 esp32:
   board: esp32-c3-devkitm-1
