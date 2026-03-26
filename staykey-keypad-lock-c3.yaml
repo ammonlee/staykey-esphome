@@ -1,7 +1,7 @@
 substitutions:
   device_name: staykey-keypad-lock-c3
-  friendly_name: "StayKey Keypad Lock C3"
-  device_description: "StayKey keypad access controller (ESP32-C3)"
+  friendly_name: "Staykey Keypad Lock C3"
+  device_description: "Staykey keypad access controller (ESP32-C3)"
   project_version: "1.0.0"
   wiegand_d0_pin: GPIO0
   wiegand_d1_pin: GPIO1

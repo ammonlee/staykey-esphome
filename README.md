@@ -1,6 +1,6 @@
-# StayKey ESPHome
+# Staykey ESPHome
 
-Modular ESPHome configurations for StayKey smart-home devices, managed through Home Assistant. Currently supports a **Wiegand keypad + RFID lock controller** and a **Balboa spa controller**.
+Modular ESPHome configurations for Staykey smart-home devices, managed through Home Assistant. Currently supports a **Wiegand keypad + RFID lock controller** and a **Balboa spa controller**.
 
 ![Wiring Diagram](docs/wiring-diagram.svg)
 
@@ -248,7 +248,7 @@ The keypad lock config exposes these actions through the ESPHome API:
 
 ## Adding New Devices
 
-To add a new StayKey device, create a new YAML file in the project root (e.g. `staykey-my-device.yaml`). Use one of the existing device files as a starting template and customize the `substitutions`, `esp32` board/variant, and device-specific components.
+To add a new Staykey device, create a new YAML file in the project root (e.g. `staykey-my-device.yaml`). Use one of the existing device files as a starting template and customize the `substitutions`, `esp32` board/variant, and device-specific components.
 
 ## Troubleshooting
 
