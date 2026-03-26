@@ -1,15 +1,37 @@
+substitutions:
+  device_name: staykey-keypad-lock-c6
+  friendly_name: "StayKey Keypad Lock C6"
+  device_description: "StayKey keypad access controller (ESP32-C6)"
+  project_version: "1.0.0"
+  wiegand_d0_pin: GPIO0
+  wiegand_d1_pin: GPIO1
+  relay_pin: GPIO2
+
 esphome:
-  name: keypad-lock
-  friendly_name: Keypad Lock
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  comment: ${device_description}
   project:
     name: staykey.esphome
-    version: "1.0.0"
+    version: ${project_version}
 
 esp32:
-  board: esp32-c3-devkitm-1
-  variant: esp32c3
+  board: seeed_xiao_esp32c6
+  variant: esp32c6
   framework:
     type: esp-idf
+
+dashboard_import:
+  package_import_url: github://ammonlee/staykey-esphome/staykey-keypad-lock-c6.yaml@main
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "${friendly_name} Fallback"
+    password: !secret fallback_ap_password
+
+captive_portal:
 
 logger:
 
@@ -418,15 +440,6 @@ api:
 ota:
   - platform: esphome
 
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  ap:
-    ssid: "Keypad-C3-Fallback"
-    password: !secret wifi_password
-
-captive_portal:
-
 globals:
   - id: code_slot_1
     type: std::string
@@ -704,12 +717,12 @@ globals:
 wiegand:
   - id: my_keypad
     d0:
-      number: GPIO0
+      number: ${wiegand_d0_pin}
       mode:
         input: true
         pullup: true
     d1:
-      number: GPIO1
+      number: ${wiegand_d1_pin}
       mode:
         input: true
         pullup: true
@@ -721,7 +734,6 @@ wiegand:
           id(last_scanned_tag).publish_state(scanned);
           ESP_LOGI("wiegand", "TAG: %s", scanned.c_str());
 
-          // Learn mode: register tag in next available slot
           if (id(learn_mode_active)) {
             id(learn_mode_active) = false;
             id(tag_learn_mode).publish_state(false);
@@ -739,7 +751,6 @@ wiegand:
               &id(tag_slot_28), &id(tag_slot_29), &id(tag_slot_30)
             };
 
-            // Check if tag already registered
             for (int i = 0; i < 30; i++) {
               if (!tag_slots[i]->empty() && *tag_slots[i] == scanned) {
                 ESP_LOGW("keypad", "Tag already registered in slot %d", i + 1);
@@ -747,7 +758,6 @@ wiegand:
               }
             }
 
-            // Find first empty slot
             for (int i = 0; i < 30; i++) {
               if (tag_slots[i]->empty()) {
                 *tag_slots[i] = scanned;
@@ -759,7 +769,6 @@ wiegand:
             return;
           }
 
-          // Normal mode: check tag against registered tags
           const int MAX_FAILED = 5;
           const uint32_t LOCKOUT_MS = 60000;
 
@@ -832,7 +841,6 @@ key_collector:
       - lambda: |-
           std::string entered = x;
 
-          // Code learn mode: register in next available slot
           if (id(learn_mode_code_active)) {
             id(learn_mode_code_active) = false;
             id(code_learn_mode).publish_state(false);
@@ -955,7 +963,7 @@ switch:
   - platform: gpio
     id: door_relay
     pin:
-      number: GPIO2
+      number: ${relay_pin}
       mode: OUTPUT
     internal: true
     on_turn_on:
@@ -1061,26 +1069,28 @@ number:
 
 sensor:
   - platform: wifi_signal
-    name: "WiFi Signal"
-    update_interval: 30s
+    name: "${friendly_name} WiFi Signal"
+    update_interval: 60s
 
   - platform: uptime
-    name: "Uptime"
+    name: "${friendly_name} Uptime"
 
   - platform: internal_temperature
-    name: "CPU Temperature"
+    name: "${friendly_name} CPU Temperature"
     update_interval: 60s
 
 binary_sensor:
   - platform: status
-    name: "Status"
+    name: "${friendly_name} Status"
 
 text_sensor:
   - platform: wifi_info
     ip_address:
-      name: "IP Address"
+      name: "${friendly_name} IP Address"
+    ssid:
+      name: "${friendly_name} WiFi SSID"
     mac_address:
-      name: "MAC Address"
+      name: "${friendly_name} MAC Address"
 
   - platform: template
     name: "Last Scanned Tag"
@@ -1089,4 +1099,7 @@ text_sensor:
 
 button:
   - platform: restart
-    name: "Restart"
+    name: "${friendly_name} Restart"
+
+  - platform: safe_mode
+    name: "${friendly_name} Safe Mode Boot"

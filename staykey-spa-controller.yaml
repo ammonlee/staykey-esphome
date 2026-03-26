@@ -1,0 +1,224 @@
+substitutions:
+  device_name: staykey-spa-controller
+  friendly_name: StayKey Spa Controller
+  device_description: StayKey-supported Balboa spa controller for Atom S3 Lite and RS485 Base
+  project_version: "1.0.0"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  comment: ${device_description}
+  project:
+    name: staykey.esphome
+    version: ${project_version}
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  framework:
+    type: esp-idf
+
+dashboard_import:
+  package_import_url: github://ammonlee/staykey-esphome/staykey-spa-controller.yaml@main
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap:
+    ssid: "${friendly_name} Fallback"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+logger:
+  level: INFO
+  baud_rate: 115200
+
+api:
+
+ota:
+  - platform: esphome
+
+web_server:
+  port: 80
+
+time:
+  - platform: homeassistant
+    id: ha_time
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/ammonlee/staykey-esphome
+      ref: main
+
+uart:
+  id: spa_uart_bus
+  tx_pin: GPIO19
+  rx_pin: GPIO22
+  baud_rate: 115200
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+  rx_buffer_size: 1024
+
+balboa_spa:
+  id: spa
+  spa_temp_scale: F
+  esphome_temp_scale: F
+  uart_id: spa_uart_bus
+
+climate:
+  - platform: balboa_spa
+    balboa_spa_id: spa
+    name: "Spa Thermostat"
+    visual:
+      min_temperature: 80 °F
+      max_temperature: 104 °F
+      temperature_step: 1 °F
+
+fan:
+  - platform: balboa_spa
+    balboa_spa_id: spa
+    jet_1:
+      name: "Spa Jet 1"
+      id: spa_jet_1
+      discard_updates: 20
+    jet_2:
+      name: "Spa Jet 2"
+      id: spa_jet_2
+      discard_updates: 20
+
+light:
+  - platform: balboa_spa
+    balboa_spa_id: spa
+    light:
+      name: "Spa Light"
+
+binary_sensor:
+  - platform: status
+    name: "${friendly_name} Status"
+
+  - platform: balboa_spa
+    balboa_spa_id: spa
+    connected:
+      name: "Spa Connected"
+    circulation:
+      name: "Spa Circulation Pump"
+    heatstate:
+      name: "Spa Heating"
+    blower:
+      name: "Spa Blower"
+    highrange:
+      name: "Spa High Range"
+    restmode:
+      name: "Spa Rest Mode"
+    filter1_running:
+      name: "Spa Filter 1 Running"
+    filter2_running:
+      name: "Spa Filter 2 Running"
+
+sensor:
+  - platform: wifi_signal
+    name: "${friendly_name} WiFi Signal"
+    update_interval: 60s
+
+  - platform: balboa_spa
+    balboa_spa_id: spa
+    heatstate:
+      name: "Spa Heat State Code"
+    blower:
+      name: "Spa Blower Speed"
+    highrange:
+      name: "Spa High Range"
+    circulation:
+      name: "Spa Circulation"
+    restmode:
+      name: "Spa Rest Mode"
+    fault_code:
+      name: "Spa Fault Code"
+    fault_total_entries:
+      name: "Spa Fault Total Entries"
+    fault_current_entry:
+      name: "Spa Fault Current Entry"
+    fault_days_ago:
+      name: "Spa Fault Days Ago"
+
+text_sensor:
+  - platform: version
+    name: "${friendly_name} ESPHome Version"
+
+  - platform: wifi_info
+    ip_address:
+      name: "${friendly_name} IP Address"
+    ssid:
+      name: "${friendly_name} WiFi SSID"
+    mac_address:
+      name: "${friendly_name} MAC Address"
+
+  - platform: balboa_spa
+    balboa_spa_id: spa
+    spa_time:
+      name: "Spa Time"
+    filter1_config:
+      name: "Spa Filter 1 Config"
+    filter2_config:
+      name: "Spa Filter 2 Config"
+    reminder:
+      name: "Spa Reminder"
+    fault_message:
+      name: "Spa Fault Message"
+    fault_log_time:
+      name: "Spa Fault Log Time"
+    component_version:
+      name: "Spa Component Version"
+
+button:
+  - platform: restart
+    name: "${friendly_name} Restart"
+
+  - platform: safe_mode
+    name: "${friendly_name} Safe Mode Boot"
+
+  - platform: balboa_spa
+    balboa_spa_id: spa
+    sync_time:
+      name: "Sync Spa Time"
+    request_fault_log:
+      name: "Request Spa Fault Log"
+    clear_reminder:
+      name: "Clear Spa Reminder"
+    disable_filter2:
+      name: "Disable Spa Filter 2"
+
+text:
+  - platform: balboa_spa
+    balboa_spa_id: spa
+    spa_time:
+      name: "Set Spa Time"
+      mode: TEXT
+    filter1_start_time:
+      name: "Set Filter 1 Start Time"
+      mode: TEXT
+    filter1_duration:
+      name: "Set Filter 1 Duration"
+      mode: TEXT
+    filter2_start_time:
+      name: "Set Filter 2 Start Time"
+      mode: TEXT
+    filter2_duration:
+      name: "Set Filter 2 Duration"
+      mode: TEXT
+
+switch:
+  - platform: template
+    name: "${friendly_name} Enable"
+    id: device_enable
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+
+  - platform: balboa_spa
+    balboa_spa_id: spa
+    filter2:
+      name: "Spa Filter 2"

@@ -1,10 +1,34 @@
-# ESPHome Wiegand Keypad Lock
+# StayKey ESPHome
 
-ESPHome configurations for a Wiegand keypad + RFID reader that controls a door lock through Home Assistant. Supports **ESP32-C3 Super Mini** and **Xiao ESP32-C6** boards.
+Modular ESPHome configurations for StayKey smart-home devices, managed through Home Assistant. Currently supports a **Wiegand keypad + RFID lock controller** and a **Balboa spa controller**.
 
 ![Wiring Diagram](docs/wiring-diagram.svg)
 
-## Features
+## Project Structure
+
+```
+staykey-keypad-lock-c3.yaml         Keypad lock -- ESP32-C3 Super Mini
+staykey-keypad-lock-c6.yaml         Keypad lock -- Xiao ESP32-C6
+staykey-spa-controller.yaml         Balboa spa controller -- ESP32-S3
+components/                         Local ESPHome external components
+  balboa_spa/                         Balboa spa integration (vendored, BSD-2-Clause)
+blueprints/                         Home Assistant automation blueprints
+  keypad_notifications.yaml           Notify on code entry events
+  keypad_garage_toggle.yaml           Toggle garage door on unlock
+docs/
+  wiring-diagram.svg
+secrets.yaml.example                Template for secrets.yaml
+```
+
+Each device file is a complete, self-contained ESPHome configuration. The flat layout matches the ESPHome Dashboard's expected structure -- copy the YAML files, `components/`, and `secrets.yaml` into `/config/esphome/` and they work as-is.
+
+## Devices
+
+### Keypad Lock
+
+A Wiegand keypad + RFID reader that controls a door lock through Home Assistant. Supports **ESP32-C3 Super Mini** and **Xiao ESP32-C6** boards.
+
+**Features:**
 
 - **30 code slots** with NVS persistence (codes survive reboots)
 - **30 RFID tag slots** with NVS persistence and Wiegand 26-bit card reads
@@ -16,21 +40,25 @@ ESPHome configurations for a Wiegand keypad + RFID reader that controls a door l
 - **Home Assistant API actions** for codes (`set_code`, `clear_code`, `get_codes`), tags (`set_tag`, `clear_tag`, `get_tags`), and settings (`set_relay_pulse_time`, `set_relock_time`)
 - **Home Assistant events**: `esphome.keypad_code_entered` with `source` field (`code` or `tag`) and event types `code_valid`, `code_invalid`, `code_lockout`, `code_timeout`, `tag_valid`, `tag_invalid`, `tag_lockout`
 - **Lock entity** in HA with full lock/unlock control
-- **Diagnostic sensors**: WiFi signal, uptime, CPU temperature, IP/MAC address
 - **Last Scanned Tag** text sensor -- always shows the most recently scanned tag ID
+
+### Spa Controller
+
+A Balboa spa controller using the `esphome-balboa-spa` external component on an ESP32-S3. Provides climate control, jet control, and light control through Home Assistant.
 
 ## Supported Hardware
 
 | Component | Tested Models |
 |---|---|
-| **ESP32 board** | ESP32-C3 Super Mini, Seeed Xiao ESP32-C6 |
+| **ESP32 board** | ESP32-C3 Super Mini, Seeed Xiao ESP32-C6, ESP32-S3-DevKitC-1 |
 | **Keypad** | Wiegand WG26/34 keypads with RFID (125kHz EM4100) |
 | **Relay** | Any 3.3V-trigger relay module |
 | **Lock** | Electric door strike, magnetic lock, or garage door opener |
+| **Spa** | Balboa-based hot tubs (via UART) |
 
-## Wiring
+## Keypad Wiring
 
-Both boards use the same pin assignments:
+Both C3 and C6 boards use the same pin assignments:
 
 | Function | GPIO | Board Pin |
 |---|---|---|
@@ -79,31 +107,23 @@ Where `123456` is the factory default programming password. After this, each key
 
 > **Note:** If the keypad is factory-reset, you will need to run this sequence again. The default door-opening password is `7890` and the programming password is `123456`.
 
-## Project Structure
-
-```
-esp32c3/
-  keypad-lock.yaml     # Production lock config for ESP32-C3 Super Mini
-  keypad-test.yaml     # Hardware test config for ESP32-C3 Super Mini
-esp32c6/
-  keypad-lock.yaml     # Production lock config for Xiao ESP32-C6
-  keypad-test.yaml     # Hardware test config for Xiao ESP32-C6
-blueprints/
-  keypad_notifications.yaml    # HA blueprint: notify on code entry events
-  keypad_garage_toggle.yaml    # HA blueprint: toggle garage door on unlock
-docs/
-  wiring-diagram.svg   # Wiring diagram
-secrets.yaml.example   # Template for secrets.yaml
-```
-
-- **`keypad-lock.yaml`** -- The full lock configuration with code slots, lockout, relay control, relock timer, and HA integration.
-- **`keypad-test.yaml`** -- A minimal test configuration for validating hardware wiring. Tests GPIO inputs/outputs, Wiegand reads, and key entry before deploying the full lock config.
-
 ## Installation
 
-1. **Copy files** -- Copy the appropriate board directory (`esp32c3/` or `esp32c6/`) to your ESPHome config directory.
+### Using the ESPHome Dashboard (Home Assistant)
 
-2. **Create secrets** -- Copy the secrets template and fill in your values:
+1. **Initial flash** -- Connect the ESP32 via USB to a machine with ESPHome CLI installed, then flash the config:
+   ```bash
+   pip install esphome
+   esphome run staykey-keypad-lock-c3.yaml
+   ```
+
+2. **Adopt in Home Assistant** -- Once flashed, the device connects to your WiFi and appears in the ESPHome Dashboard. Click **Adopt** and the Dashboard will import the full configuration from GitHub automatically.
+
+3. **Set your secrets** -- After adopting, edit the device in the Dashboard and fill in your WiFi credentials and API key in the secrets section.
+
+### Using the ESPHome CLI
+
+1. **Create secrets** -- Copy the secrets template and fill in your values:
    ```bash
    cp secrets.yaml.example secrets.yaml
    ```
@@ -112,20 +132,21 @@ secrets.yaml.example   # Template for secrets.yaml
    openssl rand -base64 32
    ```
 
-3. **Flash the test config first** -- Upload `keypad-test.yaml` to verify wiring:
+2. **Flash the device** -- Upload the config for your board:
    ```bash
-   esphome run keypad-test.yaml
+   # Keypad lock (pick your board):
+   esphome run staykey-keypad-lock-c3.yaml
+   esphome run staykey-keypad-lock-c6.yaml
+
+   # Spa controller:
+   esphome run staykey-spa-controller.yaml
    ```
-   Press keys on the keypad and check the log for `KEY PRESS` events. Scan a card and look for `TAG` events.
 
-4. **Switch to production** -- Once wiring is confirmed, flash `keypad-lock.yaml`:
-   ```bash
-   esphome run keypad-lock.yaml
-   ```
+3. **Add to Home Assistant** -- The device will appear in HA under **Settings > Devices & Services > ESPHome**.
 
-5. **Add to Home Assistant** -- The device will appear in HA under **Settings > Devices & Services > ESPHome**. You'll see a Lock entity, diagnostic sensors, and configurable numbers for relay pulse and relock time.
+### Keypad Setup
 
-6. **Set codes** -- Two options:
+4. **Set codes** -- Two options:
 
    **Option A: Learn mode (easiest)**
    - In HA, toggle the **Code Learn Mode** switch ON.
@@ -134,13 +155,13 @@ secrets.yaml.example   # Template for secrets.yaml
 
    **Option B: API action**
    ```yaml
-   action: esphome.keypad_lock_set_code
+   action: esphome.staykey_keypad_lock_c3_set_code
    data:
      slot: 1
      code: "1234"
    ```
 
-7. **Register RFID tags** -- Two options:
+5. **Register RFID tags** -- Two options:
 
    **Option A: Learn mode (easiest)**
    - In HA, toggle the **Tag Learn Mode** switch ON.
@@ -149,12 +170,16 @@ secrets.yaml.example   # Template for secrets.yaml
 
    **Option B: API action**
    ```yaml
-   action: esphome.keypad_lock_set_tag
+   action: esphome.staykey_keypad_lock_c3_set_tag
    data:
      slot: 1
      tag: "0123456789"
    ```
    Use the "Last Scanned Tag" sensor value to get the tag ID if you don't know it.
+
+### Spa Controller
+
+Connect the ESP32-S3 to your Balboa spa's UART interface (TX on GPIO19, RX on GPIO22). The device will appear in HA with climate, fan (jets), and light entities.
 
 ## Home Assistant Blueprints
 
@@ -162,13 +187,13 @@ secrets.yaml.example   # Template for secrets.yaml
 
 Get notified when codes are entered, invalid attempts occur, or the keypad locks out.
 
-[![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/ammonlee/esphome-keypad-lock/main/blueprints/keypad_notifications.yaml)
+[![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/ammonlee/staykey-esphome/main/blueprints/keypad_notifications.yaml)
 
 ### Garage Door Toggle
 
 Toggle a garage door open/closed when a valid code is entered on the keypad.
 
-[![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/ammonlee/esphome-keypad-lock/main/blueprints/keypad_garage_toggle.yaml)
+[![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/ammonlee/staykey-esphome/main/blueprints/keypad_garage_toggle.yaml)
 
 ### Example: Garage Door Toggle Automation (Manual)
 
@@ -208,7 +233,7 @@ mode: single
 
 ## API Actions
 
-The lock config exposes these actions through the ESPHome API:
+The keypad lock config exposes these actions through the ESPHome API:
 
 | Action | Parameters | Description |
 |---|---|---|
@@ -221,24 +246,9 @@ The lock config exposes these actions through the ESPHome API:
 | `set_relay_pulse_time` | `seconds` (1-30) | How long the relay stays on per unlock. |
 | `set_relock_time` | `seconds` (0-120) | Auto-relock delay. 0 = disabled. |
 
-## Device Registry
+## Adding New Devices
 
-This device reports as `esphome` by `staykey` to Home Assistant via the ESPHome `project` metadata. The corresponding Staykey device registry entry:
-
-```json
-{
-    "manufacturer": "staykey",
-    "model": "esphome",
-    "protocol": "wifi",
-    "type": "lock",
-    "notes": "Wiegand keypad + RFID access control",
-    "capabilities": {
-        "supports_access_codes": true,
-        "supports_access_code_validation": true
-    },
-    "default_settings": {}
-}
-```
+To add a new StayKey device, create a new YAML file in the project root (e.g. `staykey-my-device.yaml`). Use one of the existing device files as a starting template and customize the `substitutions`, `esp32` board/variant, and device-specific components.
 
 ## Troubleshooting
 
@@ -263,6 +273,10 @@ Not necessary. The Wiegand D0/D1 outputs are open-collector. They only pull the 
 - Verify the keypad is powered at **12V DC** (not 3.3V or 5V).
 - Verify **GND is shared** between the keypad and the ESP32.
 - Check that D0 and D1 are connected to the correct GPIO pins.
+
+## Third-Party Components
+
+The Balboa spa integration in `components/balboa_spa/` is vendored from [brianfeucht/esphome-balboa-spa](https://github.com/brianfeucht/esphome-balboa-spa) (commit `58a063c`). It is licensed under the BSD 2-Clause License -- see [`components/balboa_spa/LICENSE`](components/balboa_spa/LICENSE) for details. Original copyright belongs to Geoff Davis and contributors.
 
 ## License
 
