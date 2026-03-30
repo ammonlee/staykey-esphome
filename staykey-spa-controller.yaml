@@ -32,8 +32,11 @@ wifi:
 captive_portal:
 
 logger:
-  level: INFO
+  level: DEBUG
   baud_rate: 115200
+  logs:
+    BalboaSpa.component: DEBUG
+    BalboaSpa.CRC: DEBUG
 
 api:
   encryption:
@@ -57,13 +60,21 @@ external_components:
 
 uart:
   id: spa_uart_bus
-  tx_pin: GPIO8
-  rx_pin: GPIO6
+  tx_pin: GPIO6
+  rx_pin: GPIO5
   baud_rate: 115200
   data_bits: 8
   parity: NONE
   stop_bits: 1
   rx_buffer_size: 1024
+  debug:
+    direction: RX
+    dummy_receiver: false
+    after:
+      bytes: 20
+      timeout: 500ms
+    sequence:
+      - lambda: UARTDebug::log_hex(direction, bytes, ' ');
 
 balboa_spa:
   id: spa
@@ -91,6 +102,11 @@ fan:
       name: "Spa Jet 2"
       id: spa_jet_2
       discard_updates: 20
+    jet_3:
+      name: "Spa Jet 3"
+      id: spa_jet_3
+      discard_updates: 20
+
 
 light:
   - platform: balboa_spa
