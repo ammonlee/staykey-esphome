@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balboa Spa RS485 Wiring Diagram</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap');
+
+  :root {
+    --bg: #0a0e17;
+    --card: #111827;
+    --border: #1e293b;
+    --accent: #38bdf8;
+    --accent2: #f472b6;
+    --green: #34d399;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --orange: #fb923c;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --blue-wire: #3b82f6;
+    --purple-wire: #a855f7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  .diagram-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .wiring-section {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    justify-content: center;
+  }
+
+  .component {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    min-width: 180px;
+  }
+
+  .component-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .component-name {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .connector {
+    background: #0f172a;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+  }
+
+  .connector-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+
+  .pin {
+    padding: 6px 8px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+    border: 1px solid var(--border);
+  }
+
+  .pin-b { background: var(--blue-wire); color: white; border-color: var(--blue-wire); }
+  .pin-a { background: var(--purple-wire); color: white; border-color: var(--purple-wire); }
+  .pin-dc { background: var(--yellow); color: #000; border-color: var(--yellow); }
+  .pin-g { background: var(--red); color: white; border-color: var(--red); }
+  .pin-empty { background: transparent; color: var(--muted); border: 1px dashed var(--border); }
+
+  .wires {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 120px;
+    gap: 3px;
+    padding: 10px 0;
+  }
+
+  .wire {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .wire-line {
+    height: 2px;
+    width: 30px;
+    border-radius: 1px;
+  }
+
+  .wire-b .wire-line { background: var(--blue-wire); }
+  .wire-a .wire-line { background: var(--purple-wire); }
+  .wire-dc .wire-line { background: var(--yellow); }
+  .wire-g .wire-line { background: var(--red); }
+
+  .wire-label {
+    font-size: 0.6rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .rs485-terminals {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .terminal {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+
+  .terminal-b { background: rgba(59,130,246,0.15); border: 1px solid var(--blue-wire); color: var(--blue-wire); }
+  .terminal-a { background: rgba(168,85,247,0.15); border: 1px solid var(--purple-wire); color: var(--purple-wire); }
+  .terminal-dc { background: rgba(251,191,36,0.15); border: 1px solid var(--yellow); color: var(--yellow); }
+  .terminal-g { background: rgba(248,113,113,0.15); border: 1px solid var(--red); color: var(--red); }
+
+  .terminal-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .terminal-b .terminal-dot { background: var(--blue-wire); }
+  .terminal-a .terminal-dot { background: var(--purple-wire); }
+  .terminal-dc .terminal-dot { background: var(--yellow); }
+  .terminal-g .terminal-dot { background: var(--red); }
+
+  .note-box {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .note-box strong { color: var(--accent); }
+
+  .warning-box {
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .warning-box strong { color: var(--yellow); }
+
+  .pin-map-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    margin-top: 8px;
+  }
+
+  .pin-map-table th {
+    padding: 6px 10px;
+    text-align: left;
+    color: var(--muted);
+    font-weight: 400;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pin-map-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid rgba(30,41,59,0.5);
+  }
+
+  .chip {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .chip-blue { background: rgba(59,130,246,0.2); color: var(--blue-wire); }
+  .chip-purple { background: rgba(168,85,247,0.2); color: var(--purple-wire); }
+  .chip-yellow { background: rgba(251,191,36,0.2); color: var(--yellow); }
+  .chip-red { background: rgba(248,113,113,0.2); color: var(--red); }
+  .chip-green { background: rgba(52,211,153,0.2); color: var(--green); }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 600px) {
+    .wiring-section { flex-direction: column; align-items: center; }
+    .wires { flex-direction: row; min-width: auto; min-height: 60px; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  .arrow { color: var(--muted); font-size: 1.2rem; }
+
+  .base-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .base-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .base-btn:hover { border-color: var(--accent); }
+  .base-btn.active {
+    background: rgba(56,189,248,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<h1>Balboa Spa &rarr; RS485 Base Wiring</h1>
+<p class="subtitle">MBP501UX / BP501 board &bull; Connector J34 or J35</p>
+
+<div class="base-selector">
+  <button class="base-btn active" onclick="showBase('a131')">A131 (Recommended)</button>
+  <button class="base-btn" onclick="showBase('k045')">K045 (Your Current)</button>
+</div>
+
+<div class="diagram-container">
+
+  <!-- Main wiring diagram -->
+  <div class="wiring-section">
+
+    <!-- Balboa Board Connector -->
+    <div class="component">
+      <div class="component-title">Balboa Board</div>
+      <div class="component-name">J34 / J35</div>
+      <div class="connector">
+        <div class="connector-label">Clip at top &darr;</div>
+        <div class="pin-grid">
+          <div class="pin pin-b">4 &middot; B</div>
+          <div class="pin pin-g">3 &middot; GND</div>
+          <div class="pin pin-a">2 &middot; A</div>
+          <div class="pin pin-dc">1 &middot; DC</div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:0.7rem; color:var(--muted)">
+        Molex MicroFit 4-pin
+      </div>
+    </div>
+
+    <!-- Wires -->
+    <div class="wires">
+      <div class="wire wire-b">
+        <span class="wire-line"></span>
+        <span class="wire-label">BLACK</span>
+        <span class="wire-line"></span>
+      </div>
+      <div class="wire wire-a">
+        <span class="wire-line"></span>
+        <span class="wire-label">BLK+PURP</span>
+        <span class="wire-line"></span>
+      </div>
+      <div class="wire wire-dc">
+        <span class="wire-line"></span>
+        <span class="wire-label">YELLOW</span>
+        <span class="wire-line"></span>
+      </div>
+      <div class="wire wire-g">
+        <span class="wire-line"></span>
+        <span class="wire-label">RED</span>
+        <span class="wire-line"></span>
+      </div>
+    </div>
+
+    <!-- RS485 Base -->
+    <div class="component">
+      <div class="component-title" id="base-label">RS485 Base</div>
+      <div class="component-name" id="base-name">A131 &middot; Atomic RS485</div>
+      <div class="connector">
+        <div class="connector-label">VH-3.96 Connector</div>
+        <div class="rs485-terminals">
+          <div class="terminal terminal-b"><div class="terminal-dot"></div>B &mdash; RS485 (−)</div>
+          <div class="terminal terminal-a"><div class="terminal-dot"></div>A &mdash; RS485 (+)</div>
+          <div class="terminal terminal-dc"><div class="terminal-dot"></div>DC &mdash; 12V Power</div>
+          <div class="terminal terminal-g"><div class="terminal-dot"></div>G &mdash; Ground</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two columns: GPIO config + notes -->
+  <div class="two-col">
+
+    <!-- GPIO Config -->
+    <div class="component">
+      <div class="component-title">ESPHome UART Config</div>
+      <div class="component-name" id="gpio-title">A131 + AtomS3 Lite</div>
+      <table class="pin-map-table">
+        <tr><th>Function</th><th>GPIO</th><th>Base Pin</th></tr>
+        <tr id="rx-row">
+          <td><span class="chip chip-green">RX</span> (from spa)</td>
+          <td><strong id="rx-gpio">GPIO5</strong></td>
+          <td id="rx-base">Pin 3</td>
+        </tr>
+        <tr id="tx-row">
+          <td><span class="chip chip-blue">TX</span> (to spa)</td>
+          <td><strong id="tx-gpio">GPIO6</strong></td>
+          <td id="tx-base">Pin 5</td>
+        </tr>
+        <tr>
+          <td>Baud</td>
+          <td colspan="2"><strong>115200</strong></td>
+        </tr>
+        <tr>
+          <td>Parity</td>
+          <td colspan="2">NONE &middot; 8N1</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Notes -->
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div class="note-box" id="compat-note">
+        <strong>A131</strong> is the correct base for AtomS3 Lite.<br>
+        GPIO5 (RX) / GPIO6 (TX) &mdash; confirmed working by the Reddit guide.
+      </div>
+      <div class="warning-box" id="warning-note">
+        <strong>K045</strong> (RX:22, TX:19) was designed for the original Atom Lite only. The RS485 traces route to different physical pin positions. If you have the K045, try GPIO8/GPIO7 &mdash; or get the A131.
+      </div>
+    </div>
+  </div>
+
+  <!-- Wire color reference -->
+  <div class="component">
+    <div class="component-title">Wire Color Reference (Molex MicroFit)</div>
+    <table class="pin-map-table">
+      <tr><th>Wire</th><th>Balboa Pin</th><th>Signal</th><th>RS485 Base</th></tr>
+      <tr>
+        <td><span class="chip chip-blue">BLACK</span></td>
+        <td>Pin 4</td>
+        <td>RS485 B (−)</td>
+        <td>B terminal</td>
+      </tr>
+      <tr>
+        <td><span class="chip chip-purple">BLACK + PURPLE tape</span></td>
+        <td>Pin 2</td>
+        <td>RS485 A (+)</td>
+        <td>A terminal</td>
+      </tr>
+      <tr>
+        <td><span class="chip chip-yellow">YELLOW</span></td>
+        <td>Pin 1</td>
+        <td>+12V DC</td>
+        <td>DC terminal</td>
+      </tr>
+      <tr>
+        <td><span class="chip chip-red">RED</span></td>
+        <td>Pin 3</td>
+        <td>Ground</td>
+        <td>G terminal</td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+<script>
+function showBase(base) {
+  document.querySelectorAll('.base-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const baseName = document.getElementById('base-name');
+  const gpioTitle = document.getElementById('gpio-title');
+  const rxGpio = document.getElementById('rx-gpio');
+  const txGpio = document.getElementById('tx-gpio');
+  const rxBase = document.getElementById('rx-base');
+  const txBase = document.getElementById('tx-base');
+  const compatNote = document.getElementById('compat-note');
+  const warningNote = document.getElementById('warning-note');
+
+  if (base === 'a131') {
+    baseName.textContent = 'A131 · Atomic RS485';
+    gpioTitle.textContent = 'A131 + AtomS3 Lite';
+    rxGpio.textContent = 'GPIO5';
+    txGpio.textContent = 'GPIO6';
+    rxBase.textContent = 'Pin 3 (RIGHT)';
+    txBase.textContent = 'Pin 5 (RIGHT)';
+    compatNote.innerHTML = '<strong>A131</strong> is the correct base for AtomS3 Lite.<br>GPIO5 (RX) / GPIO6 (TX) — confirmed working by the Reddit guide.';
+    warningNote.innerHTML = '<strong>K045</strong> (RX:22, TX:19) was designed for the original Atom Lite only. The RS485 traces route to different physical pin positions. If you have the K045, try GPIO8/GPIO7 — or get the A131.';
+  } else {
+    baseName.textContent = 'K045 · ATOM RS-485';
+    gpioTitle.textContent = 'K045 + AtomS3 Lite (unconfirmed)';
+    rxGpio.textContent = 'GPIO8 (try first)';
+    txGpio.textContent = 'GPIO7 (try first)';
+    rxBase.textContent = 'Pin 2 (LEFT → was G22)';
+    txBase.textContent = 'Pin 4 (LEFT → was G19)';
+    compatNote.innerHTML = '<strong>K045 + AtomS3 is NOT officially supported.</strong><br>The base routes RS485 to the LEFT column (G22/G19 positions), which map to <strong>GPIO8/GPIO7</strong> on the AtomS3 Lite (estimated).';
+    warningNote.innerHTML = '<strong>If GPIO8/GPIO7 doesn\'t work:</strong> try GPIO7 (RX) / GPIO8 (TX) — then consider getting the A131 base which is confirmed compatible.';
+  }
+}
+</script>
+
+</body>
+</html>

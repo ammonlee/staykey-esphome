@@ -2,7 +2,7 @@ substitutions:
   device_name: staykey-spa-controller
   friendly_name: Staykey Spa Controller
   device_description: Staykey-supported Balboa spa controller for Atom S3 Lite and RS485 Base
-  project_version: "1.0.0"
+  project_version: "1.0.1"
 
 esphome:
   name: ${device_name}
