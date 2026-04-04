@@ -308,12 +308,12 @@ namespace esphome
             input_queue.push(received_byte);
 
             // Length byte (index 1) is the index of the CRC byte; EOF 0x7E is at len_idx+1 (frame size len_idx+2).
-            // BP501/RS485 can use len_idx well above 0x40 (e.g. 0x4C); only reject what cannot fit in the 100-byte queue
-            // or mis-framed huge values (e.g. 0xA6). Skip when [1]==0x7E: double-SOF handling (above) runs on next read.
+            // BP501/RS485 can use large len_idx (e.g. 0xA9); only reject what cannot fit in BALBOA_UART_QUEUE_SIZE.
+            // Skip when [1]==0x7E: double-SOF handling (above) runs on next read.
             if (input_queue.size() >= 2 && input_queue[0] == 0x7E && input_queue[1] != 0x7E)
             {
                 uint8_t len_idx = input_queue[1];
-                if (len_idx < 4 || len_idx + 2 > 100)
+                if (len_idx < 4 || len_idx + 2 > BALBOA_UART_QUEUE_SIZE)
                 {
                     ESP_LOGD(TAG, "Bad length byte 0x%02X, resync", len_idx);
                     input_queue.clear();
@@ -522,7 +522,7 @@ namespace esphome
             last_received_time = millis();
         }
 
-        uint8_t BalboaSpa::crc8(CircularBuffer<uint8_t, 100> &data, bool ignore_delimiter)
+        uint8_t BalboaSpa::crc8(CircularBuffer<uint8_t, BALBOA_UART_QUEUE_SIZE> &data, bool ignore_delimiter)
         {
             unsigned long crc_value;
             int bit_index;
@@ -594,7 +594,7 @@ namespace esphome
             output_queue.clear();
         }
 
-        void BalboaSpa::print_msg(CircularBuffer<uint8_t, 100> &data)
+        void BalboaSpa::print_msg(CircularBuffer<uint8_t, BALBOA_UART_QUEUE_SIZE> &data)
         {
             std::stringstream debug_stream;
             // for (loop_index = 0; loop_index < (input_queue[1] + 2); loop_index++) {

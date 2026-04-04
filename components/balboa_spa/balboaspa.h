@@ -31,6 +31,9 @@ namespace esphome
 #define STRON "ON"
 #define STROFF "OFF"
 
+    /** Byte [1] is CRC index; frame length is len_idx+2. BP501/RS485 uses indices up to ~0xA9 (171 B total). */
+    static constexpr size_t BALBOA_UART_QUEUE_SIZE = 256;
+
     enum TEMP_SCALE : uint8_t
     {
       UNDEFINED = 254,
@@ -89,8 +92,8 @@ namespace esphome
       void request_fault_log_update();
 
     private:
-      CircularBuffer<uint8_t, 100> input_queue;
-      CircularBuffer<uint8_t, 100> output_queue;
+      CircularBuffer<uint8_t, BALBOA_UART_QUEUE_SIZE> input_queue;
+      CircularBuffer<uint8_t, BALBOA_UART_QUEUE_SIZE> output_queue;
       uint8_t received_byte, loop_index, temp_index;
       uint8_t last_state_crc = 0x00;
       uint8_t send_command = 0x00;
@@ -136,11 +139,11 @@ namespace esphome
       void read_serial();
       void update_sensors();
 
-      uint8_t crc8(CircularBuffer<uint8_t, 100> &data, bool ignore_delimiter);
+      uint8_t crc8(CircularBuffer<uint8_t, BALBOA_UART_QUEUE_SIZE> &data, bool ignore_delimiter);
       void ID_request();
       void ID_ack();
       void rs485_send();
-      void print_msg(CircularBuffer<uint8_t, 100> &data);
+      void print_msg(CircularBuffer<uint8_t, BALBOA_UART_QUEUE_SIZE> &data);
       void decodeSettings();
       void decodeState();
       void decodeFilterSettings();
