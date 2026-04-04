@@ -8,6 +8,9 @@ esphome:
   name: ${device_name}
   friendly_name: ${friendly_name}
   comment: ${device_description}
+  platformio_options:
+    board_build.extra_flags:
+      - "-DARDUINO_USB_CDC_ON_BOOT=0"
   project:
     name: staykey.esphome
     version: ${project_version}
@@ -16,7 +19,7 @@ esp32:
   board: esp32-s3-devkitc-1
   variant: esp32s3
   framework:
-    type: esp-idf
+    type: arduino
 
 dashboard_import:
   package_import_url: github://ammonlee/staykey-esphome/staykey-spa-controller.yaml@main
@@ -35,8 +38,8 @@ logger:
   level: DEBUG
   baud_rate: 115200
   logs:
-    BalboaSpa.component: DEBUG
-    BalboaSpa.CRC: DEBUG
+    uart.arduino_esp32: WARN
+    BalboaSpa.CRC: NONE
 
 api:
   encryption:
@@ -52,11 +55,16 @@ time:
   - platform: homeassistant
     id: ha_time
 
+# brianfeucht upstream, then local `components/` overrides (framing/CRC resync in balboaspa.cpp).
+# Home Assistant: copy the `components` folder next to this YAML, or build from this repo.
 external_components:
   - source:
       type: git
-      url: https://github.com/ammonlee/staykey-esphome
+      url: https://github.com/brianfeucht/esphome-balboa-spa
       ref: main
+  - source:
+      type: local
+      path: components
 
 uart:
   id: spa_uart_bus
