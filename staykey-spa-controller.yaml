@@ -55,15 +55,17 @@ time:
   - platform: homeassistant
     id: ha_time
 
-# brianfeucht upstream, then local `components/` overrides (framing/CRC resync in balboaspa.cpp).
-# Home Assistant: copy the `components` folder next to this YAML, or build from this repo.
+# brianfeucht upstream, then Staykey fork overrides (framing/CRC resync in balboaspa.cpp).
+# Second source is git so /config/esphome/ builds without a local components/ folder.
 external_components:
   - source:
       type: git
       url: https://github.com/brianfeucht/esphome-balboa-spa
       ref: main
   - source:
-      type: local
+      type: git
+      url: https://github.com/ammonlee/staykey-esphome
+      ref: main
       path: components
 
 uart:
