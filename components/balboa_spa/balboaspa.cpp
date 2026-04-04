@@ -307,13 +307,13 @@ namespace esphome
 
             input_queue.push(received_byte);
 
-            // Length byte (index 1) is the index of the CRC; plausible Balboa frames are short (often ~0x1D).
-            // Mis-framed 0x7E starts produce huge length values (e.g. 0x4E) and endless CRC failures.
-            // Skip when [1]==0x7E: double-SOF handling (above) runs on the next read.
+            // Length byte (index 1) is the index of the CRC byte; EOF 0x7E is at len_idx+1 (frame size len_idx+2).
+            // BP501/RS485 can use len_idx well above 0x40 (e.g. 0x4C); only reject what cannot fit in the 100-byte queue
+            // or mis-framed huge values (e.g. 0xA6). Skip when [1]==0x7E: double-SOF handling (above) runs on next read.
             if (input_queue.size() >= 2 && input_queue[0] == 0x7E && input_queue[1] != 0x7E)
             {
                 uint8_t len_idx = input_queue[1];
-                if (len_idx < 4 || len_idx > 0x40 || len_idx + 2 > 100)
+                if (len_idx < 4 || len_idx + 2 > 100)
                 {
                     ESP_LOGD(TAG, "Bad length byte 0x%02X, resync", len_idx);
                     input_queue.clear();
